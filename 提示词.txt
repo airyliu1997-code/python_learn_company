@@ -1,0 +1,22 @@
+第二步，提取数据，这部分通过tushare工具包实现。我的token key保存在环境变量中命名为TUSHARE_TOKEN。并且通过datetime模块获取当前的时间，判断过去五年和
+  过去10个季度分别指的是具体什么时间。我需要提取下面这些数据，把这些数据用合适的变量名保存起来。1）通过income接口，report_type选择1获取年度数据，提取过去五
+  年的营业收入（total_revenue）归母净利润（n_income_attr_p）2）通过income接口，report_type选择2获取季度数据，提取过去十个季度的营业收入（total_revenu 
+  e）归母净利润（n_income_attr_p）3）通过cashflow接口，report_tpe选择1获取年度数据，提取过去五年的经营现金流净额（n_cashflow_act）和现金净增加额（im_n_incr
+  _cash_equ）4）通过cashflow接口，report_tpe选择2获取季度数据，提取过去十个季度的经营现金流净额（n_cashflow_act）和现金净增加额（im_n_incr_cash_equ）5）通
+  过fina_indicator接口，获取过去五年的净利率（netprofit_margin），过去五年的毛利率（grossprofit_margin），过去五年的净资产收益率（roe_waa），过去五年的总资
+  产报酬率（roa）和过去五年的投入资本回报率（roic），过去五年的营收增长率（tr_yoy），过去五年的利润增长率（netprofit_yoy）6）通过fina_indicator接口，获取过
+  去十个季度的净利率（q_netprofit_margin），过去十个季度的毛利率（q_gsprofit_margin），过去十个季度的营收同比（q_gr_yoy），过去十个季度的营收环比（q_gr_qoq
+  ），过去十个季度的利润同比（q_profit_yoy），过去十个季度的利润环比（q_profit_qoq）。如果是数值类的数据，单位用亿元，保留一位小数。如果是比率类的数据，显
+  示百分号，保留一位小数。这些变量在测试时print出来展示（在最终主程序运行时不用print）
+
+我希望在其中增加功能，通过Tushare工具包实现。1）通过stock_company接口获得公司所在城市（city），公司
+  介绍（introduction），公司主页（website），主要业务和产品（main_business)这几个信息，以合适的变量名保存下来，待后
+  续模块调用。2）通过daily_basic接口获得当日的市盈率（pe_ttm），市净率（pb），总市值（total_mv）。将这些信息也以合
+  适的变量名保存下来。当天的日期信息已经在这个文件中由datetime提取过，可以直接调用。
+
+在公司名称输入的模块已经指定了需要研
+  究的公司@/Users/airry/PythonS/python_learn_company/stock_code_matcher.py 
+  。在文本信息生成模块需要调用阿里云的API用Qwen模型生成以下信息：1）该公司的收入结构和主要收入贡献来源。2）该公司的
+  发展历史沿革和创始人的背景，尽量详细。3）该公司下游的主要客户构成和销售模式。我阿里云的TOKEN 
+  KEY已经保存在环境变量中。将这三个问题的答案都以文本的形式保存下来，等待内容整合模块的调用。先不要编写内容整合模块
+  ，稍等我会提具体要求。
