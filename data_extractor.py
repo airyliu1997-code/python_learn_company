@@ -44,14 +44,14 @@ class DataExtractor:
         #将数据升序排列
         annual_income = annual_income.sort_values(by='end_date', ascending=True).reset_index(drop=True)
         # 提取过去五年的营业收入和归母净利润
-        annual_revenue = annual_income[['end_date', 'total_revenue']].rename(columns={'total_revenue': 'annual_total_revenue'})
-        annual_net_profit = annual_income[['end_date', 'n_income_attr_p']].rename(columns={'n_income_attr_p': 'annual_n_income_attr_p'})
+        annual_revenue = annual_income[['end_date', 'total_revenue']].rename(columns={'end_date': '报告期', 'total_revenue': '年度营业收入'})
+        annual_net_profit = annual_income[['end_date', 'n_income_attr_p']].rename(columns={'end_date': '报告期', 'n_income_attr_p': '年度归母净利润'})
         
         # 转换为亿元，并保留一位小数
-        annual_revenue['annual_total_revenue'] = pd.to_numeric(annual_revenue['annual_total_revenue'], errors='coerce') / 100000000
-        annual_revenue['annual_total_revenue'] = annual_revenue['annual_total_revenue'].round(1)
-        annual_net_profit['annual_n_income_attr_p'] = pd.to_numeric(annual_net_profit['annual_n_income_attr_p'], errors='coerce') / 100000000
-        annual_net_profit['annual_n_income_attr_p'] = annual_net_profit['annual_n_income_attr_p'].round(1)
+        annual_revenue['年度营业收入'] = pd.to_numeric(annual_revenue['年度营业收入'], errors='coerce') / 100000000
+        annual_revenue['年度营业收入'] = annual_revenue['年度营业收入'].round(1)
+        annual_net_profit['年度归母净利润'] = pd.to_numeric(annual_net_profit['年度归母净利润'], errors='coerce') / 100000000
+        annual_net_profit['年度归母净利润'] = annual_net_profit['年度归母净利润'].round(1)
         
         # 2. 获取过去十个季度的数据 (report_type=2)
         quarterly_income = self.pro.income(ts_code=stock_code, 
@@ -66,14 +66,14 @@ class DataExtractor:
         quarterly_income = quarterly_income.sort_values(by='end_date', ascending=True).reset_index(drop=True)
 
         # 提取过去十个季度的营业收入和归母净利润
-        quarterly_revenue = quarterly_income[['end_date', 'total_revenue']].rename(columns={'total_revenue': 'quarterly_total_revenue'})
-        quarterly_net_profit = quarterly_income[['end_date', 'n_income_attr_p']].rename(columns={'n_income_attr_p': 'quarterly_n_income_attr_p'})
+        quarterly_revenue = quarterly_income[['end_date', 'total_revenue']].rename(columns={'end_date': '报告期', 'total_revenue': '季度营业收入'})
+        quarterly_net_profit = quarterly_income[['end_date', 'n_income_attr_p']].rename(columns={'end_date': '报告期', 'n_income_attr_p': '季度归母净利润'})
         
         # 转换为亿元，并保留一位小数
-        quarterly_revenue['quarterly_total_revenue'] = pd.to_numeric(quarterly_revenue['quarterly_total_revenue'], errors='coerce') / 100000000
-        quarterly_revenue['quarterly_total_revenue'] = quarterly_revenue['quarterly_total_revenue'].round(1)
-        quarterly_net_profit['quarterly_n_income_attr_p'] = pd.to_numeric(quarterly_net_profit['quarterly_n_income_attr_p'], errors='coerce') / 100000000
-        quarterly_net_profit['quarterly_n_income_attr_p'] = quarterly_net_profit['quarterly_n_income_attr_p'].round(1)
+        quarterly_revenue['季度营业收入'] = pd.to_numeric(quarterly_revenue['季度营业收入'], errors='coerce') / 100000000
+        quarterly_revenue['季度营业收入'] = quarterly_revenue['季度营业收入'].round(1)
+        quarterly_net_profit['季度归母净利润'] = pd.to_numeric(quarterly_net_profit['季度归母净利润'], errors='coerce') / 100000000
+        quarterly_net_profit['季度归母净利润'] = quarterly_net_profit['季度归母净利润'].round(1)
         
         print("提取利润表数据完成")
         return {
@@ -105,20 +105,20 @@ class DataExtractor:
         available_cols = ['end_date'] + [col for col in required_cols if col in annual_cashflow.columns]
         annual_cashflow_data = annual_cashflow[available_cols].copy()
         
-        rename_dict = {'n_cashflow_act': 'annual_n_cashflow_act'}
+        rename_dict = {'end_date': '报告期', 'n_cashflow_act': '年度经营现金流净额'}
         if 'im_n_incr_cash_equ' in annual_cashflow_data.columns:
-            rename_dict['im_n_incr_cash_equ'] = 'annual_im_n_incr_cash_equ'
+            rename_dict['im_n_incr_cash_equ'] = '年度现金净增加额'
             
         annual_cashflow_data = annual_cashflow_data.rename(columns=rename_dict)
         
         # 转换为亿元，并保留一位小数
-        if 'annual_n_cashflow_act' in annual_cashflow_data.columns:
-            annual_cashflow_data['annual_n_cashflow_act'] = pd.to_numeric(annual_cashflow_data['annual_n_cashflow_act'], errors='coerce') / 100000000
-            annual_cashflow_data['annual_n_cashflow_act'] = annual_cashflow_data['annual_n_cashflow_act'].round(1)
+        if '年度经营现金流净额' in annual_cashflow_data.columns:
+            annual_cashflow_data['年度经营现金流净额'] = pd.to_numeric(annual_cashflow_data['年度经营现金流净额'], errors='coerce') / 100000000
+            annual_cashflow_data['年度经营现金流净额'] = annual_cashflow_data['年度经营现金流净额'].round(1)
             
-        if 'annual_im_n_incr_cash_equ' in annual_cashflow_data.columns:
-            annual_cashflow_data['annual_im_n_incr_cash_equ'] = pd.to_numeric(annual_cashflow_data['annual_im_n_incr_cash_equ'], errors='coerce') / 100000000
-            annual_cashflow_data['annual_im_n_incr_cash_equ'] = annual_cashflow_data['annual_im_n_incr_cash_equ'].round(1)
+        if '年度现金净增加额' in annual_cashflow_data.columns:
+            annual_cashflow_data['年度现金净增加额'] = pd.to_numeric(annual_cashflow_data['年度现金净增加额'], errors='coerce') / 100000000
+            annual_cashflow_data['年度现金净增加额'] = annual_cashflow_data['年度现金净增加额'].round(1)
         
         # 4. 获取过去十个季度的现金流量数据 (report_type=2)
         quarterly_cashflow = self.pro.cashflow(ts_code=stock_code, 
@@ -136,19 +136,20 @@ class DataExtractor:
         # 首先检查数据是否存在必要的列
         if 'n_cashflow_act' not in quarterly_cashflow.columns:
             print(f"警告: 股票{stock_code}的季度现金流量表中缺少n_cashflow_act列")
-            quarterly_cashflow_data = pd.DataFrame(columns=['end_date', 'quarterly_n_cashflow_act'])
+            quarterly_cashflow_data = pd.DataFrame(columns=['报告期', '季度经营现金流净额'])
         else:
             # 仅提取存在的列
             cols_to_extract = ['end_date', 'n_cashflow_act']
             available_cols = [col for col in cols_to_extract if col in quarterly_cashflow.columns]
             quarterly_cashflow_data = quarterly_cashflow[available_cols].copy()
             quarterly_cashflow_data = quarterly_cashflow_data.rename(columns={
-                'n_cashflow_act': 'quarterly_n_cashflow_act'
+                'end_date': '报告期', 'n_cashflow_act': '季度经营现金流净额'
             })
-            
+            #去除重复的行
+            quarterly_cashflow_data = quarterly_cashflow_data.drop_duplicates(subset=['报告期'])
             # 转换为亿元，并保留一位小数
-            quarterly_cashflow_data['quarterly_n_cashflow_act'] = pd.to_numeric(quarterly_cashflow_data['quarterly_n_cashflow_act'], errors='coerce') / 100000000
-            quarterly_cashflow_data['quarterly_n_cashflow_act'] = quarterly_cashflow_data['quarterly_n_cashflow_act'].round(1)
+            quarterly_cashflow_data['季度经营现金流净额'] = pd.to_numeric(quarterly_cashflow_data['季度经营现金流净额'], errors='coerce') / 100000000
+            quarterly_cashflow_data['季度经营现金流净额'] = quarterly_cashflow_data['季度经营现金流净额'].round(1)
         
         print("提取现金流量表数据完成")
         return {
@@ -189,20 +190,21 @@ class DataExtractor:
         # Remove update_flag column from the final result since we only used it for filtering
         annual_indicators_for_rename = annual_indicators.drop(columns=['update_flag']) if 'update_flag' in annual_indicators.columns else annual_indicators
         annual_indicators_data = annual_indicators_for_rename.rename(columns={
-            'netprofit_margin': 'annual_netprofit_margin',
-            'grossprofit_margin': 'annual_grossprofit_margin',
-            'roe_waa': 'annual_roe_waa',
-            'roa': 'annual_roa',
-            'roic': 'annual_roic',
-            'tr_yoy': 'annual_tr_yoy',
-            'netprofit_yoy': 'annual_netprofit_yoy'
+            'end_date': '报告期',
+            'netprofit_margin': '年度净利率',
+            'grossprofit_margin': '年度毛利率',
+            'roe_waa': '年度净资产收益率',
+            'roa': '年度总资产报酬率',
+            'roic': '年度投入资本回报率',
+            'tr_yoy': '年度营收增长率',
+            'netprofit_yoy': '年度利润增长率'
         })
         
         # 将比率类数据转换为百分比格式，并保留一位小数
         ratio_columns = [
-            'annual_netprofit_margin', 'annual_grossprofit_margin', 
-            'annual_roe_waa', 'annual_roa', 'annual_roic', 
-            'annual_tr_yoy', 'annual_netprofit_yoy'
+            '年度净利率', '年度毛利率', 
+            '年度净资产收益率', '年度总资产报酬率', '年度投入资本回报率', 
+            '年度营收增长率', '年度利润增长率'
         ]
         for col in ratio_columns:
             if col in annual_indicators_data.columns:
@@ -235,19 +237,20 @@ class DataExtractor:
         # Remove update_flag column from the final result since we only used it for filtering
         quarterly_indicators_for_rename = quarterly_indicators.drop(columns=['update_flag']) if 'update_flag' in quarterly_indicators.columns else quarterly_indicators
         quarterly_indicators_data = quarterly_indicators_for_rename.rename(columns={
-            'q_netprofit_margin': 'quarterly_netprofit_margin',  # 单季度销售净利率
-            'q_gsprofit_margin': 'quarterly_grossprofit_margin', # 单季度销售毛利率
-            'q_gr_yoy': 'quarterly_gr_yoy',                      # 营收同比增长率
-            'q_gr_qoq': 'quarterly_gr_qoq',                      # 营收环比增长率
-            'q_netprofit_yoy': 'quarterly_profit_yoy',           # 利润同比增长率
-            'q_netprofit_qoq': 'quarterly_profit_qoq'            # 利润环比增长率
+            'end_date': '报告期',
+            'q_netprofit_margin': '单季度销售净利率',  # 单季度销售净利率
+            'q_gsprofit_margin': '单季度销售毛利率', # 单季度销售毛利率
+            'q_gr_yoy': '营收同比增长率',                      # 营收同比增长率
+            'q_gr_qoq': '营收环比增长率',                      # 营收环比增长率
+            'q_netprofit_yoy': '利润同比增长率',           # 利润同比增长率
+            'q_netprofit_qoq': '利润环比增长率'            # 利润环比增长率
         })
         
         # 将比率类数据转换为百分比格式，并保留一位小数
         quarterly_ratio_columns = [
-            'quarterly_netprofit_margin', 'quarterly_grossprofit_margin',
-            'quarterly_gr_yoy', 'quarterly_gr_qoq',
-            'quarterly_profit_yoy', 'quarterly_profit_qoq'
+            '单季度销售净利率', '单季度销售毛利率',
+            '营收同比增长率', '营收环比增长率',
+            '利润同比增长率', '利润环比增长率'
         ]
         for col in quarterly_ratio_columns:
             if col in quarterly_indicators_data.columns:
@@ -354,6 +357,21 @@ class DataExtractor:
         # 在所有处理完成后，再次执行去重操作，以确保没有重复记录
         main_bz_data = main_bz_data.drop_duplicates(subset=['end_date', 'bz_item'])
         
+        # 重命名列名为中文
+        column_mapping = {
+            'end_date': '报告期',
+            'bz_item': '业务项目',
+            'bz_sales': '业务收入',
+            'bz_profit': '业务利润',
+            'revenue_proportion': '收入占比',
+            'gross_margin': '毛利率'
+        }
+        
+        # 只重命名存在的列
+        existing_columns = {old_col: new_col for old_col, new_col in column_mapping.items() 
+                           if old_col in main_bz_data.columns}
+        main_bz_data = main_bz_data.rename(columns=existing_columns)
+        
         print(f"提取主营业务构成数据完成，共{len(main_bz_data)}条记录")
         return main_bz_data
 
@@ -387,13 +405,13 @@ class DataExtractor:
         
         print("\n--- 年度现金流量表数据 ---")
         print("年度经营现金流净额:")
-        print(cashflow_data['annual_cashflow'][['end_date', 'annual_n_cashflow_act']])
+        print(cashflow_data['annual_cashflow'][['报告期', '年度经营现金流净额']])
         print("年度现金净增加额:")
-        print(cashflow_data['annual_cashflow'][['end_date', 'annual_im_n_incr_cash_equ']])
+        print(cashflow_data['annual_cashflow'][['报告期', '年度现金净增加额']])
         
         print("\n--- 季度现金流量表数据 ---")
         print("季度经营现金流净额:")
-        print(cashflow_data['quarterly_cashflow'][['end_date', 'quarterly_n_cashflow_act']])
+        print(cashflow_data['quarterly_cashflow'][['报告期', '季度经营现金流净额']])
         
         print("\n--- 年度财务指标数据 ---")
         print("年度财务指标:")

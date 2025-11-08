@@ -32,8 +32,8 @@ class TextGenerator:
             if main_bz_composition is not None and hasattr(main_bz_composition, 'to_dict'):
                 # 如果是DataFrame，转换为适合输出的格式
                 try:
-                    # 取主要的收入结构相关字段，包括end_date
-                    required_cols = ['end_date', 'bz_item', 'bz_sales', 'revenue_proportion']
+                    # 取主要的收入结构相关字段，包括报告期
+                    required_cols = ['报告期', '业务项目', '业务收入', '收入占比']
                     if not main_bz_composition.empty and all(col in main_bz_composition.columns for col in required_cols):
                         # 只取关键字段并转换为字典
                         selected_data = main_bz_composition[required_cols].dropna()
@@ -45,17 +45,17 @@ class TextGenerator:
                         else:
                             main_bz_data = "无主营业务构成数据"
                     else:
-                        # 如果DataFrame没有预期的列，尝试包含end_date在内的所有可用列
-                        if 'end_date' in main_bz_composition.columns:
-                            # 至少包含end_date和bz_item
-                            available_cols = ['end_date', 'bz_item']
-                            for col in ['bz_sales', 'revenue_proportion', 'bz_profit', 'gross_margin']:
+                        # 如果DataFrame没有预期的列，尝试包含报告期在内的所有可用列
+                        if '报告期' in main_bz_composition.columns:
+                            # 至少包含报告期和业务项目
+                            available_cols = ['报告期', '业务项目']
+                            for col in ['业务收入', '收入占比', '业务利润', '毛利率']:
                                 if col in main_bz_composition.columns:
                                     available_cols.append(col)
                             selected_data = main_bz_composition[available_cols]
                             main_bz_data = json.dumps(selected_data.to_dict('records'), ensure_ascii=False, indent=2)
                         else:
-                            # 如果没有end_date列，直接转换整个DataFrame
+                            # 如果没有报告期列，直接转换整个DataFrame
                             main_bz_data = json.dumps(main_bz_composition.to_dict('records'), ensure_ascii=False, indent=2)
                 except Exception as e:
                     main_bz_data = f"主营业务构成数据处理错误: {str(e)}"
@@ -157,7 +157,7 @@ class TextGenerator:
                 model=model,
                 prompt=prompt,
                 result_format='message',  # 设置返回格式为message
-                max_tokens=1500,  # 限制最大token数
+                max_tokens=10,  # 限制最大token数
                 temperature=0.7,  # 控制生成的随机性
             )
             
