@@ -239,8 +239,15 @@ class ContentIntegrator:
         if not annual_indicators.empty:
             html_content.append('        <div class="subsection">')
             html_content.append('            <h3>年度财务指标数据</h3>')
-
-            html_content.append(self._df_to_html_table(annual_indicators))
+            
+            # Remove "年度营收增长率" and "年度利润增长率" columns if they exist
+            annual_indicators_filtered = annual_indicators.copy()
+            columns_to_remove = ['年度营收增长率', '年度利润增长率']
+            for col in columns_to_remove:
+                if col in annual_indicators_filtered.columns:
+                    annual_indicators_filtered = annual_indicators_filtered.drop(columns=[col])
+            
+            html_content.append(self._df_to_html_table(annual_indicators_filtered))
             html_content.append('        </div>')
         
         # Quarterly financial indicators
@@ -248,8 +255,15 @@ class ContentIntegrator:
         if not quarterly_indicators.empty:
             html_content.append('        <div class="subsection">')
             html_content.append('            <h3>季度财务指标数据</h3>')
-
-            html_content.append(self._df_to_html_table(quarterly_indicators))
+            
+            # Remove quarterly growth rate columns if they exist
+            quarterly_indicators_filtered = quarterly_indicators.copy()
+            columns_to_remove = ['营收同比增长率', '营收环比增长率', '利润同比增长率', '利润环比增长率']
+            for col in columns_to_remove:
+                if col in quarterly_indicators_filtered.columns:
+                    quarterly_indicators_filtered = quarterly_indicators_filtered.drop(columns=[col])
+            
+            html_content.append(self._df_to_html_table(quarterly_indicators_filtered))
             html_content.append('        </div>')
         
         html_content.append('    </div>')
