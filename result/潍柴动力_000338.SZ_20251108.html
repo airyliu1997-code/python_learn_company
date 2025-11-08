@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>潍柴动力（000338.SZ）公司分析报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
         h1, h2, h3 { color: #333; }
@@ -13,6 +14,7 @@
         th { background-color: #f2f2f2; }
         .section { margin: 20px 0; }
         .subsection { margin: 15px 0; }
+        .chart-container { position: relative; height: 400px; width: 100%; margin: 20px 0; }
         .kline-image { width: 100%; max-width: 1000px; height: auto; margin: 20px 0; }
         strong { color: #444; }
     </style>
@@ -37,7 +39,7 @@
         <h2>收入结构分析</h2>
         <div class="subsection">
             <h3>收入结构和主要收入贡献来源：</h3>
-            <p>截至目前（2025年4月），</p>
+            <p>根据您提供的潍柴动力（Weichai</p>
         </div>
         <div class="subsection">
             <h3>主营业务构成数据表</h3>
@@ -282,6 +284,83 @@
         <h2>财务数据分析</h2>
         <div class="subsection">
             <h3>年度营业收入与营收增长率数据</h3>
+        <div class="chart-container">
+            <canvas id="annualRevenueChart"></canvas>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const ctx = document.getElementById("annualRevenueChart").getContext("2d");
+                const annualRevenueChart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: ["20201231", "20211231", "20221231", "20231231", "20241231"],
+                        datasets: [
+                            {
+                                label: "年度营业收入 (亿元)",
+                                data: [1974.9, 2035.5, 1751.6, 2139.6, 2156.9],
+                                backgroundColor: "rgba(87, 160, 229, 1)",  // 淡蓝色，透明度100%
+                                borderColor: "rgba(87, 160, 229, 1)",   // 与填充色相同
+                                borderWidth: 2,
+                                yAxisID: "y-axis-revenue",
+                                order: 2
+                            },
+                            {
+                                label: "年度营收增长率 (%)",
+                                data: [13.3, 3.2, -20.5, 22.2, 0.8],
+                                borderColor: "rgba(249, 217, 137, 1)",      // 黄色，透明度100%
+                                backgroundColor: "rgba(249, 217, 137, 1)",  // 与线条同色
+                                borderWidth: 3,
+                                pointBackgroundColor: "rgba(255, 152, 0, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 5,
+                                fill: false,
+                                type: "line",
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-growth",
+                                order: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false  // 禁用x轴网格线（纵向线不显示）
+                                }
+                            },
+                            "y-axis-revenue": {
+                                position: "left",
+                                title: {
+                                    display: true,
+                                    text: "营业收入 (亿元)"
+                                }
+                            },
+                            "y-axis-growth": {
+                                position: "right",
+                                title: {
+                                    display: true,
+                                    text: "营收增长率 (%)"
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "年度营业收入与营收增长率趋势"
+                            },
+                            legend: {
+                                display: true,
+                                position: "top"
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
     <table>
         <thead>
             <tr>
@@ -321,6 +400,83 @@
         </div>
         <div class="subsection">
             <h3>年度归母净利润与利润增长率数据</h3>
+        <div class="chart-container">
+            <canvas id="annualNetProfitChart"></canvas>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const ctx = document.getElementById("annualNetProfitChart").getContext("2d");
+                const annualNetProfitChart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: ["20201231", "20211231", "20221231", "20231231", "20241231"],
+                        datasets: [
+                            {
+                                label: "年度归母净利润 (亿元)",
+                                data: [92.1, 92.5, 49.1, 90.1, 114.0],
+                                backgroundColor: "rgba(87, 160, 229, 1)",  // 淡蓝色，透明度100%
+                                borderColor: "rgba(87, 160, 229, 1)",   // 与填充色相同
+                                borderWidth: 2,
+                                yAxisID: "y-axis-net-profit",
+                                order: 2
+                            },
+                            {
+                                label: "年度利润增长率 (%)",
+                                data: [1.1, 0.3, -48.3, 83.8, 26.5],
+                                borderColor: "rgba(249, 217, 137, 1)",      // 黄色，透明度100%
+                                backgroundColor: "rgba(249, 217, 137, 1)",  // 与线条同色
+                                borderWidth: 3,
+                                pointBackgroundColor: "rgba(255, 152, 0, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 5,
+                                fill: false,
+                                type: "line",
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-growth",
+                                order: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false  // 禁用x轴网格线（纵向线不显示）
+                                }
+                            },
+                            "y-axis-net-profit": {
+                                position: "left",
+                                title: {
+                                    display: true,
+                                    text: "归母净利润 (亿元)"
+                                }
+                            },
+                            "y-axis-growth": {
+                                position: "right",
+                                title: {
+                                    display: true,
+                                    text: "利润增长率 (%)"
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "年度归母净利润与利润增长率趋势"
+                            },
+                            legend: {
+                                display: true,
+                                position: "top"
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
     <table>
         <thead>
             <tr>
@@ -360,6 +516,98 @@
         </div>
         <div class="subsection">
             <h3>季度营业收入与营收增长率数据</h3>
+        <div class="chart-container">
+            <canvas id="quarterlyRevenueChart"></canvas>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const ctx = document.getElementById("quarterlyRevenueChart").getContext("2d");
+                const quarterlyRevenueChart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: ["20230630", "20230930", "20231231", "20240331", "20240630", "20240930", "20241231", "20250331", "20250630", "20250930"],
+                        datasets: [
+                            {
+                                label: "季度营业收入 (亿元)",
+                                data: [527.0, 542.5, 535.8, 563.8, 561.1, 494.6, 537.4, 574.6, 556.9, 574.2],
+                                backgroundColor: "rgba(87, 160, 229, 1)",  // 淡蓝色，透明度100%
+                                borderColor: "rgba(87, 160, 229, 1)",   // 与填充色相同
+                                borderWidth: 2,
+                                order: 3,
+                                yAxisID: "y-axis-revenue",
+                            },
+                            {
+                                label: "季度营收同比增长率 (%)",
+                                data: [26.7, 24.0, 20.0, 5.5, 6.5, -8.8, 0.3, 1.9, -0.8, 16.1],
+                                borderColor: "rgba(249, 217, 137, 1)",      // 黄色，透明度100%
+                                backgroundColor: "rgba(249, 217, 137, 1)",  // 与线条同色
+                                borderWidth: 3,
+                                pointBackgroundColor: "rgba(255, 152, 0, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 5,
+                                fill: false,
+                                type: "line",
+                                order: 1,
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-growth",
+                            },
+                            {
+                                label: "季度营收环比增长率 (%)",
+                                data: [-1.4, 2.9, -1.2, 5.2, -0.5, -11.8, 8.6, 6.9, -3.1, 3.1],
+                                borderColor: "rgba(241, 138, 158, 1)",      // 指定颜色
+                                backgroundColor: "rgba(241, 138, 158, 1)",  // 与线条同色
+                                borderWidth: 2,
+                                pointBackgroundColor: "rgba(241, 138, 158, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 4,
+                                fill: false,
+                                type: "line",
+                                order: 2,
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-growth",
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false  // 禁用x轴网格线（纵向线不显示）
+                                }
+                            },
+                            "y-axis-revenue": {
+                                position: "left",
+                                title: {
+                                    display: true,
+                                    text: "季度营业收入 (亿元)"
+                                }
+                            },
+                            "y-axis-growth": {
+                                position: "right",
+                                title: {
+                                    display: true,
+                                    text: "营收增长率 (%)"
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "季度营业收入与营收增长率趋势"
+                            },
+                            legend: {
+                                display: true,
+                                position: "top"
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
     <table>
         <thead>
             <tr>
@@ -435,6 +683,98 @@
         </div>
         <div class="subsection">
             <h3>季度归母净利润与利润增长率数据</h3>
+        <div class="chart-container">
+            <canvas id="quarterlyNetProfitChart"></canvas>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const ctx = document.getElementById("quarterlyNetProfitChart").getContext("2d");
+                const quarterlyNetProfitChart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: ["20230630", "20230930", "20231231", "20240331", "20240630", "20240930", "20241231", "20250331", "20250630", "20250930"],
+                        datasets: [
+                            {
+                                label: "季度归母净利润 (亿元)",
+                                data: [20.4, 26.0, 25.1, 26.0, 33.0, 25.0, 30.0, 27.1, 29.3, 32.3],
+                                backgroundColor: "rgba(87, 160, 229, 1)",  // 淡蓝色，透明度100%
+                                borderColor: "rgba(87, 160, 229, 1)",   // 与填充色相同
+                                borderWidth: 2,
+                                order: 3,
+                                yAxisID: "y-axis-net-profit",
+                            },
+                            {
+                                label: "季度利润同比增长率 (%)",
+                                data: [58.6, 182.5, 57.7, 40.1, 61.7, -4.0, 19.5, 4.3, -11.2, 29.5],
+                                borderColor: "rgba(249, 217, 137, 1)",      // 黄色，透明度100%
+                                backgroundColor: "rgba(249, 217, 137, 1)",  // 与线条同色
+                                borderWidth: 3,
+                                pointBackgroundColor: "rgba(255, 152, 0, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 5,
+                                fill: false,
+                                type: "line",
+                                order: 1,
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-growth",
+                            },
+                            {
+                                label: "季度利润环比增长率 (%)",
+                                data: [10.1, 27.3, -3.4, 3.4, 27.1, -24.4, 20.2, -9.7, 8.2, 10.3],
+                                borderColor: "rgba(241, 138, 158, 1)",      // 指定颜色
+                                backgroundColor: "rgba(241, 138, 158, 1)",  // 与线条同色
+                                borderWidth: 2,
+                                pointBackgroundColor: "rgba(241, 138, 158, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 4,
+                                fill: false,
+                                type: "line",
+                                order: 2,
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-growth",
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false  // 禁用x轴网格线（纵向线不显示）
+                                }
+                            },
+                            "y-axis-net-profit": {
+                                position: "left",
+                                title: {
+                                    display: true,
+                                    text: "季度归母净利润 (亿元)"
+                                }
+                            },
+                            "y-axis-growth": {
+                                position: "right",
+                                title: {
+                                    display: true,
+                                    text: "利润增长率 (%)"
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "季度归母净利润与利润增长率趋势"
+                            },
+                            legend: {
+                                display: true,
+                                position: "top"
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
     <table>
         <thead>
             <tr>
@@ -510,6 +850,55 @@
         </div>
         <div class="subsection">
             <h3>年度现金流量表数据</h3>
+        <div class="chart-container">
+            <canvas id="annualCashflowChart"></canvas>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const ctx = document.getElementById("annualCashflowChart").getContext("2d");
+                const annualCashflowChart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: ["20201231", "20211231", "20221231", "20231231", "20241231"],
+                        datasets: [
+                            {
+                                label: "年度经营现金流净额 (亿元)",
+                                data: [229.3, 146.6, -23.5, 274.7, 260.9],
+                                backgroundColor: "rgba(87, 160, 229, 1)",  // 淡蓝色，透明度100%
+                                borderColor: "rgba(87, 160, 229, 1)",   // 与填充色相同
+                                borderWidth: 2,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false  // 禁用x轴网格线（纵向线不显示）
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "经营现金流净额 (亿元)"
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "年度经营现金流净额趋势"
+                            },
+                            legend: {
+                                display: true,
+                                position: "top"
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
     <table>
         <thead>
             <tr>
@@ -549,6 +938,55 @@
         </div>
         <div class="subsection">
             <h3>季度现金流量表数据</h3>
+        <div class="chart-container">
+            <canvas id="quarterlyCashflowChart"></canvas>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const ctx = document.getElementById("quarterlyCashflowChart").getContext("2d");
+                const quarterlyCashflowChart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: ["20230630", "20230930", "20231231", "20240331", "20240630", "20240930", "20241231", "20250331", "20250630", "20250930"],
+                        datasets: [
+                            {
+                                label: "季度经营现金流净额 (亿元)",
+                                data: [133.6, 72.0, 73.8, 16.1, 111.9, 7.1, 125.8, -46.5, 114.8, 81.8],
+                                backgroundColor: "rgba(87, 160, 229, 1)",  // 淡蓝色，透明度100%
+                                borderColor: "rgba(87, 160, 229, 1)",   // 与填充色相同
+                                borderWidth: 2,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false  // 禁用x轴网格线（纵向线不显示）
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "经营现金流净额 (亿元)"
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "季度经营现金流净额趋势"
+                            },
+                            legend: {
+                                display: true,
+                                position: "top"
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
     <table>
         <thead>
             <tr>
@@ -602,6 +1040,157 @@
         </div>
         <div class="subsection">
             <h3>年度财务指标数据</h3>
+        <div class="chart-container">
+            <canvas id="annualMarginsChart"></canvas>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const ctx = document.getElementById("annualMarginsChart").getContext("2d");
+                const annualMarginsChart = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: ["20201231", "20211231", "20221231", "20231231", "20241231"],
+                        datasets: [
+                            {
+                                label: "年度净利率 (%)",
+                                data: [5.7, 5.7, 3.2, 5.2, 6.6],
+                                borderColor: "rgba(87, 160, 229, 1)",      // 蓝色
+                                backgroundColor: "rgba(87, 160, 229, 1)",  // 与线条同色
+                                borderWidth: 3,
+                                pointBackgroundColor: "rgba(87, 160, 229, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 5,
+                                fill: false,
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-margin",
+                            },
+                            {
+                                label: "年度毛利率 (%)",
+                                data: [19.3, 19.5, 17.8, 21.1, 22.4],
+                                borderColor: "rgba(241, 138, 158, 1)",      // 指定颜色
+                                backgroundColor: "rgba(241, 138, 158, 1)",  // 与线条同色
+                                borderWidth: 2,
+                                pointBackgroundColor: "rgba(241, 138, 158, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 4,
+                                fill: false,
+                                type: "line",
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-margin",
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false  // 禁用x轴网格线（纵向线不显示）
+                                }
+                            },
+                            "y-axis-margin": {
+                                title: {
+                                    display: true,
+                                    text: "利润率 (%)"
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "年度净利率与毛利率趋势"
+                            },
+                            legend: {
+                                display: true,
+                                position: "top"
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+        <div class="chart-container">
+            <canvas id="annualROEChart"></canvas>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const ctx = document.getElementById("annualROEChart").getContext("2d");
+                const annualROEChart = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: ["20201231", "20211231", "20221231", "20231231", "20241231"],
+                        datasets: [
+                            {
+                                label: "年度净资产收益率 (%)",
+                                data: [19.2, 14.8, 6.7, 11.7, 13.7],
+                                borderColor: "rgba(87, 160, 229, 1)",      // 蓝色
+                                backgroundColor: "rgba(87, 160, 229, 1)",  // 与线条同色
+                                borderWidth: 3,
+                                pointBackgroundColor: "rgba(87, 160, 229, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 5,
+                                fill: false,
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-roe",
+                            },
+                            {
+                                label: "年度总资产报酬率 (%)",
+                                data: [4.9, 4.9, 1.8, 4.4, 5.1],
+                                borderColor: "rgba(249, 217, 137, 1)",      // 黄色
+                                backgroundColor: "rgba(249, 217, 137, 1)",  // 与线条同色
+                                borderWidth: 3,
+                                pointBackgroundColor: "rgba(249, 217, 137, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 5,
+                                fill: false,
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-roe",
+                            },
+                            {
+                                label: "年度投入资本回报率 (%)",
+                                data: [9.2, 8.3, 3.2, 7.4, 8.8],
+                                borderColor: "rgba(241, 138, 158, 1)",      // 指定颜色
+                                backgroundColor: "rgba(241, 138, 158, 1)",  // 与线条同色
+                                borderWidth: 2,
+                                pointBackgroundColor: "rgba(241, 138, 158, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 4,
+                                fill: false,
+                                type: "line",
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-roe",
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false  // 禁用x轴网格线（纵向线不显示）
+                                }
+                            },
+                            "y-axis-roe": {
+                                title: {
+                                    display: true,
+                                    text: "回报率 (%)"
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "年度净资产收益率、总资产报酬率与投入资本回报率趋势"
+                            },
+                            legend: {
+                                display: true,
+                                position: "top"
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
     <table>
         <thead>
             <tr>
@@ -659,6 +1248,75 @@
         </div>
         <div class="subsection">
             <h3>季度财务指标数据</h3>
+        <div class="chart-container">
+            <canvas id="quarterlyMarginsChart"></canvas>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const ctx = document.getElementById("quarterlyMarginsChart").getContext("2d");
+                const quarterlyMarginsChart = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: ["20230630", "20230930", "20231231", "20240331", "20240630", "20240930", "20241231", "20250331", "20250630", "20250930"],
+                        datasets: [
+                            {
+                                label: "单季度销售净利率 (%)",
+                                data: [4.8, 5.9, 6.0, 5.9, 7.2, 6.0, 7.3, 4.9, 6.7, 7.5],
+                                borderColor: "rgba(87, 160, 229, 1)",      // 蓝色
+                                backgroundColor: "rgba(87, 160, 229, 1)",  // 与线条同色
+                                borderWidth: 3,
+                                pointBackgroundColor: "rgba(87, 160, 229, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 5,
+                                fill: false,
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-q-margin",
+                            },
+                            {
+                                label: "单季度销售毛利率 (%)",
+                                data: [20.2, 21.8, 23.7, 22.1, 21.4, 22.1, 24.2, 22.2, 22.1, 21.4],
+                                borderColor: "rgba(241, 138, 158, 1)",      // 指定颜色
+                                backgroundColor: "rgba(241, 138, 158, 1)",  // 与线条同色
+                                borderWidth: 2,
+                                pointBackgroundColor: "rgba(241, 138, 158, 1)",
+                                pointBorderColor: "rgba(255, 255, 255, 0)",  // 透明点
+                                pointRadius: 4,
+                                fill: false,
+                                type: "line",
+                                tension: 0.4, // for smooth curves
+                                yAxisID: "y-axis-q-margin",
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false  // 禁用x轴网格线（纵向线不显示）
+                                }
+                            },
+                            "y-axis-q-margin": {
+                                title: {
+                                    display: true,
+                                    text: "利润率 (%)"
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "单季度销售净利率与毛利率趋势"
+                            },
+                            legend: {
+                                display: true,
+                                position: "top"
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
     <table>
         <thead>
             <tr>
