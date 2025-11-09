@@ -16,15 +16,18 @@ class DataExtractor:
         
         # 计算时间范围
         self.current_date = datetime.datetime.now()
+        self.three_years_ago = self.current_date - datetime.timedelta(days=3*365)
         self.five_years_ago = self.current_date - datetime.timedelta(days=5*365)
         self.ten_quarters_ago = self.current_date - datetime.timedelta(days=10*91)  # 10个季度大约是10*91天
         
         # 格式化日期字符串
+        self.three_years_ago_str = self.three_years_ago.strftime('%Y%m%d')
         self.five_years_ago_str = self.five_years_ago.strftime('%Y%m%d')
         self.ten_quarters_ago_str = self.ten_quarters_ago.strftime('%Y%m%d')
         self.current_date_str = self.current_date.strftime('%Y%m%d')
         
         print(f"当前日期: {self.current_date_str}")
+        print(f"过去三年起始日期: {self.three_years_ago_str}")
         print(f"过去五年起始日期: {self.five_years_ago_str}")
         print(f"过去十个季度起始日期: {self.ten_quarters_ago_str}")
 
@@ -439,6 +442,14 @@ class DataExtractor:
         print(f"公司主页: {company_info['website']}")
         print(f"主要业务和产品: {company_info['main_business']}")
         
+        # Extract top 10 shareholders data
+        top10_holders_data = self.extract_top10_shareholders(stock_code)
+        all_data['top10_holders'] = top10_holders_data
+
+        print("\n--- 前十大股东数据 ---")
+        print("前十大股东信息:")
+        print(top10_holders_data[['end_date', 'holder_name', 'hold_ratio', 'hold_change', 'holder_type']].head(10))
+
         # Extract daily market data
         daily_data = self.extract_daily_market_data(stock_code)
         all_data['daily_market_data'] = daily_data
@@ -549,6 +560,35 @@ class DataExtractor:
             'total_mv': None,
             'trade_date': None
         }
+
+    def extract_top10_shareholders(self, stock_code):
+        """提取前十大股东信息"""
+        # 使用Tushare top10_holders接口提取前十大股东信息
+        # 设置时间范围为三年前到当前日期
+        holders_data = self.pro.top10_holders(ts_code=stock_code,
+                                           start_date=self.three_years_ago_str,
+                                           end_date=self.current_date_str)
+        
+        # 选择所需的字段：ts_code, end_date, holder_name, hold_ratio, hold_change, holder_type
+        required_columns = ['ts_code', 'end_date', 'holder_name', 'hold_ratio', 'hold_change', 'holder_type']
+        
+        # 确保列存在于数据中，否则创建空列
+        for col in required_columns:
+            if col not in holders_data.columns:
+                holders_data[col] = None
+        
+        # 选择指定的列
+        selected_data = holders_data[required_columns].copy()
+        
+        # 按期末日期和持股比例降序排序
+        selected_data = selected_data.sort_values(by=['end_date', 'hold_ratio'], ascending=[False, False]).reset_index(drop=True)
+        
+        # 将持股比例保留一位小数
+        if 'hold_ratio' in selected_data.columns:
+            selected_data['hold_ratio'] = pd.to_numeric(selected_data['hold_ratio'], errors='coerce').round(1)
+        
+        print(f"提取股票 {stock_code} 前十大股东信息完成，共{len(selected_data)}条记录")
+        return selected_data
 
 
 def main():

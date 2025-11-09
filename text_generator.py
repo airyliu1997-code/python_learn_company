@@ -148,6 +148,50 @@ class TextGenerator:
         
         return self._call_qwen_api(prompt)
 
+    def generate_shareholders_info(self, company_name: str, stock_code: str, top10_holders_data=None) -> str:
+        """
+        生成公司前十大股东信息，包括持股比例超过5%的股东背景和股份变动情况
+        """
+        holders_info = "无前十大股东数据"
+        if top10_holders_data is not None:
+            # 检查是否为DataFrame类型
+            if hasattr(top10_holders_data, 'to_dict'):
+                try:
+                    # 转换为字典格式，只取关键字段
+                    required_cols = ['end_date', 'holder_name', 'hold_ratio', 'hold_change', 'holder_type']
+                    available_cols = [col for col in required_cols if col in top10_holders_data.columns]
+                    selected_data = top10_holders_data[available_cols].copy()
+                    
+                    # 只取非空数据
+                    if not selected_data.empty:
+                        holders_info = json.dumps(selected_data.to_dict('records'), ensure_ascii=False, indent=2)
+                    else:
+                        holders_info = "无前十大股东数据"
+                except Exception as e:
+                    holders_info = f"前十大股东数据处理错误: {str(e)}"
+            else:
+                holders_info = json.dumps(top10_holders_data, ensure_ascii=False, indent=2)
+        prompt = f"""
+        请基于{company_name}（股票代码：{stock_code}）的前十大股东数据，详细介绍该公司的股东结构：
+
+        前十大股东数据：
+        {holders_info}
+
+        请从以下角度详细分析：
+        1. 前十大股东分别是谁
+        2. 对于其中持股比例超过5%的股东（排除公募基金），请介绍其背景
+        3. 近期有什么大股东的股份重要变动
+
+        请注意：
+        - 如果数据中存在公募基金类型的股东，请忽略其背景介绍
+        - 基于实际数据进行描述，不要编造信息
+        - 如果数据中没有明确的持股变动信息，请明确说明
+
+        我是一名专业的投资人，请提供专业、详细的分析内容。
+        """
+
+        return self._call_qwen_api(prompt)
+
     def _call_qwen_api(self, prompt: str, model: str = "qwen-plus") -> str:
         """
         调用阿里云Qwen API生成文本
@@ -157,8 +201,8 @@ class TextGenerator:
                 model=model,
                 prompt=prompt,
                 result_format='message',  # 设置返回格式为message
-                max_tokens=10,  # 限制最大token数
-                temperature=0.7,  # 控制生成的随机性
+                max_tokens=1000,  # 限制最大token数
+                temperature=0.75,  # 控制生成的随机性
             )
             
             if response.status_code == HTTPStatus.OK:
@@ -200,13 +244,19 @@ class TextGenerator:
         print("正在生成客户构成和销售模式信息...")
         customer_sales_info = self.generate_customer_and_sales_info(company_name, industry_info)
         
+        # 生成前十大股东信息
+        print("正在生成前十大股东信息...")
+        top10_holders_data = financial_data.get('top10_holders', None) if financial_data else None
+        shareholders_info = self.generate_shareholders_info(company_name, stock_code, top10_holders_data)
+        
         # 将生成的信息保存到字典中
         generated_info = {
             'company_name': company_name,
             'stock_code': stock_code,
             'income_structure_info': income_structure_info,
             'history_info': history_info,
-            'customer_sales_info': customer_sales_info
+            'customer_sales_info': customer_sales_info,
+            'shareholders_info': shareholders_info
         }
         
         print("文本信息生成完成！")
@@ -222,8 +272,8 @@ def main():
         generator = TextGenerator()
         
         # 示例公司名称和股票代码
-        company_name = "阿里巴巴"
-        stock_code = "BABA"
+        company_name = "潍柴动力"
+        stock_code = "000338.SZ"
         
         # 调用生成函数
         result = generator.generate_all_company_info(company_name, stock_code)

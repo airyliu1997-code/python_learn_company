@@ -84,6 +84,14 @@ class ContentIntegrator:
 
         html_content.append(f'        <p><strong>公司介绍：</strong> {company_intro}</p>')
         html_content.append(f'        <p><strong>主要业务和产品：</strong> {main_business}</p>')
+        
+        # Get shareholders info from text generator
+        shareholders_info = text_generator_result.get('shareholders_info', 'N/A')
+        html_content.append('        <div class="subsection">')
+        html_content.append('            <h3>前十大股东信息：</h3>')
+        html_content.append(f'            {shareholders_info}')
+        html_content.append('        </div>')
+        
         html_content.append('        <div class="subsection">')
         html_content.append('            <h3>公司历史沿革和创始人背景：</h3>')
         html_content.append(f'            {history_info}')
@@ -1148,9 +1156,29 @@ class ContentIntegrator:
             html_content.append(f'        <p>数据提取日期: 无数据</p>')
 
         # Format market valuation metrics to one decimal place
-        pe_ttm_formatted = f"{pe_ttm:.1f}" if pe_ttm is not None else 'N/A'
-        pb_formatted = f"{pb:.1f}" if pb is not None else 'N/A'
-        total_mv_formatted = f"{total_mv:.1f}" if total_mv is not None else 'N/A'
+        if pe_ttm is not None and pe_ttm != 'N/A':
+            try:
+                pe_ttm_formatted = f"{float(pe_ttm):.1f}"
+            except (ValueError, TypeError):
+                pe_ttm_formatted = 'N/A'
+        else:
+            pe_ttm_formatted = 'N/A'
+
+        if pb is not None and pb != 'N/A':
+            try:
+                pb_formatted = f"{float(pb):.1f}"
+            except (ValueError, TypeError):
+                pb_formatted = 'N/A'
+        else:
+            pb_formatted = 'N/A'
+
+        if total_mv is not None and total_mv != 'N/A':
+            try:
+                total_mv_formatted = f"{float(total_mv):.1f}"
+            except (ValueError, TypeError):
+                total_mv_formatted = 'N/A'
+        else:
+            total_mv_formatted = 'N/A'
 
         html_content.append(f'        <p>公司当前市盈率（TTM）为 {pe_ttm_formatted}</p>')
         html_content.append(f'        <p>市净率为 {pb_formatted}</p>')

@@ -24,7 +24,8 @@ def run_analysis(company_name, stock_code):
         # Extract financial data for better text generation
         financial_data = {
             'annual_revenue': data_extractor_result.get('annual_revenue', {}).to_dict() if not data_extractor_result.get('annual_revenue', pd.DataFrame()).empty else {},
-            'main_business_composition': data_extractor_result.get('main_business_composition', pd.DataFrame())  # 传递DataFrame而不是字典，便于处理
+            'main_business_composition': data_extractor_result.get('main_business_composition', pd.DataFrame()),  # 传递DataFrame而不是字典，便于处理
+            'top10_holders': data_extractor_result.get('top10_holders', pd.DataFrame())  # 传递前十大股东数据
         }
         
         # Extract management information
