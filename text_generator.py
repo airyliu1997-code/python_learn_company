@@ -1,5 +1,6 @@
 import os
 import json
+import asyncio
 from typing import Dict, Optional
 from http import HTTPStatus
 import dashscope  # Alibaba Cloud Qwen SDK
@@ -20,7 +21,7 @@ class TextGenerator:
         dashscope.api_key = api_key
         print("成功初始化阿里云Qwen API客户端")
 
-    def generate_income_structure_info(self, company_name: str, financial_data: Optional[Dict] = None) -> str:
+    async def generate_income_structure_info(self, company_name: str, financial_data: Optional[Dict] = None) -> str:
         """
         生成公司收入结构和主要收入贡献来源的信息
         """
@@ -64,21 +65,25 @@ class TextGenerator:
                 main_bz_data = json.dumps(main_bz_composition, ensure_ascii=False, indent=2)
         
         prompt = f"""
-        请联网搜索并分析{company_name}的收入结构和主要收入贡献来源。基于以下主营业务构成数据（如果提供）：
+        请联网搜索并分析{company_name}的收入结构和主要收入贡献来源。基于以下主营业务构成数据：
         
         {main_bz_data}
         
         请从以下角度详细分析：
-        1. 主要收入来源（产品/服务线/地区）
+        1. 依照产品划分的主要收入来源
         2. 各收入来源的占比情况
         3. 收入结构的变化趋势
 
         我是一名专业的投资人，请提供专业、详细的分析内容，如果不确定具体信息，请联网进行搜索。
+        不需要对公司背景进行介绍，直接进入分析内容。
+        不需要对完整的收入构成表格进行展示
+        需要对不同收入科目具体的产品内容和对应客户群体进行介绍
+        字数控制在1500字以内
         """
         
-        return self._call_qwen_api(prompt)
+        return await self._call_qwen_api_async(prompt)
 
-    def generate_history_and_founder_info(self, company_name: str, management_info=None) -> str:
+    async def generate_history_and_founder_info(self, company_name: str, management_info=None) -> str:
         """
         生成公司发展历史沿革和创始人背景信息
         """
@@ -113,22 +118,20 @@ class TextGenerator:
             management_details = "无管理层信息"
         
         prompt = f"""
-        请联网搜索并详细介绍{company_name}的发展历史沿革和创始人的背景，内容需要尽可能详细，包括：
+        你是{company_name}的投资者关系总监。请联网搜索并详细介绍{company_name}的发展历史沿革和创始人的背景，内容需要尽可能详细，包括：
         
-        1. 公司创立背景和初衷
-        2. 创始人是谁，创始团队成员有哪些。创始人的教育背景、职业经历
-        3. 重要发展阶段和里程碑事件，对近五年的情况时间颗粒度要细化
-        4. 关键转型或业务扩展节点，对近五年的情况时间颗粒度要细化
+        1. 公司创立背景
+        2. 创始人是谁，公司现在实控人与创始人是否为同一人，他们之间是什么关系。实控人的教育背景、职业经历（如是国有公司则忽略创始人信息）
+        3. 重要发展阶段和里程碑事件，梳理公司不同阶段的发展脉络和公司成长的核心驱动力。尤其注重近五年的发展情况。
         
         当前管理层信息作为参考：
         {management_details}
-        
-        请提供详尽的内容，如果部分具体历史信息不确定，请基于行业背景进行合理推测。
+        字数不超过1500字
         """
         
-        return self._call_qwen_api(prompt)
+        return await self._call_qwen_api_async(prompt)
 
-    def generate_customer_and_sales_info(self, company_name: str, industry_info: Optional[str] = None) -> str:
+    async def generate_customer_and_sales_info(self, company_name: str, industry_info: Optional[str] = None) -> str:
         """
         生成公司下游主要客户构成和销售模式的信息
         """
@@ -136,19 +139,19 @@ class TextGenerator:
         请联网搜索并详细分析{company_name}的下游主要客户构成和销售模式：
         
         行业背景信息：
-        {industry_info if industry_info else "无具体行业背景信息"}
+        {industry_info if industry_info else ""}
         
         请从以下角度详细分析：
         1. 下游主要客户类型和构成
-        2. 主要销售渠道和分销模式
-        3. 产业链上下游的基本情况
+        2. 产业链上游的基本情况，有哪些核心物料
         
-        我是一名专业的投资人，请提供专业、详细的分析内容，如果不确定具体信息，请基于行业常识进行合理推测。
+        不需要对公司背景进行介绍，直接进入分析内容。
+        字数控制在1500字以内
         """
         
-        return self._call_qwen_api(prompt)
+        return await self._call_qwen_api_async(prompt)
 
-    def generate_shareholders_info(self, company_name: str, stock_code: str, top10_holders_data=None) -> str:
+    async def generate_shareholders_info(self, company_name: str, stock_code: str, top10_holders_data=None) -> str:
         """
         生成公司前十大股东信息，包括持股比例超过5%的股东背景和股份变动情况
         """
@@ -178,7 +181,7 @@ class TextGenerator:
         {holders_info}
 
         请从以下角度详细分析：
-        1. 前十大股东分别是谁
+        1. 前十大股东名单
         2. 对于其中持股比例超过5%的股东（排除公募基金），请介绍其背景
         3. 近期有什么大股东的股份重要变动
 
@@ -190,9 +193,9 @@ class TextGenerator:
         我是一名专业的投资人，请提供专业、详细的分析内容。
         """
 
-        return self._call_qwen_api(prompt)
+        return await self._call_qwen_api_async(prompt)
 
-    def _call_qwen_api(self, prompt: str, model: str = "qwen-plus") -> str:
+    async def _call_qwen_api_async(self, prompt: str, model: str = "qwen-plus") -> str:
         """
         调用阿里云Qwen API生成文本
         """
@@ -201,7 +204,7 @@ class TextGenerator:
                 model=model,
                 prompt=prompt,
                 result_format='message',  # 设置返回格式为message
-                max_tokens=1000,  # 限制最大token数
+                max_tokens=1500,  # 限制最大token数
                 temperature=0.75,  # 控制生成的随机性
             )
             
@@ -223,43 +226,54 @@ class TextGenerator:
             print(f"调用Qwen API时发生错误: {e}")
             return f"API调用错误: {e}"
 
+
     def generate_all_company_info(self, company_name: str, stock_code: str, 
                                 financial_data: Optional[Dict] = None, 
-                                industry_info: Optional[str] = None,
-                                management_info: Optional[Dict] = None) -> Dict[str, str]:
-        """
-        生成所有公司信息
-        """
-        print(f"开始为公司 {company_name} (股票代码: {stock_code}) 生成文本信息...")
+                                industry_info: Optional[str] = None, 
+                                management_info: Optional[Dict] = None) -> Dict[str, str]: 
+        """ 
+        生成所有公司信息（同步接口，内部使用异步处理） 
+        """ 
+        print(f"开始为公司 {company_name} (股票代码: {stock_code}) 生成文本信息...") 
+        return asyncio.run(self._generate_all_company_info_async( 
+            company_name, stock_code, financial_data, industry_info, management_info 
+        )) 
+
+    async def _generate_all_company_info_async(self, company_name: str, stock_code: str, 
+                                             financial_data: Optional[Dict] = None, 
+                                             industry_info: Optional[str] = None, 
+                                             management_info: Optional[Dict] = None) -> Dict[str, str]: 
+        """ 
+        异步生成所有公司信息（内部使用） 
+        """ 
+        print(f"开始异步生成公司 {company_name} (股票代码: {stock_code}) 的文本信息...") 
+
+        # 创建所有生成任务并并行执行 
+        tasks = [ 
+            asyncio.create_task(self.generate_income_structure_info(company_name, financial_data)), 
+            asyncio.create_task(self.generate_history_and_founder_info(company_name, management_info)), 
+            asyncio.create_task(self.generate_customer_and_sales_info(company_name, industry_info)), 
+        ] 
         
-        # 生成收入结构信息
-        print("正在生成收入结构信息...")
-        income_structure_info = self.generate_income_structure_info(company_name, financial_data)
-        
-        # 生成历史和创始人信息（现在传入管理层信息）
-        print("正在生成公司历史沿革和创始人背景信息...")
-        history_info = self.generate_history_and_founder_info(company_name, management_info)
-        
-        # 生成客户和销售信息
-        print("正在生成客户构成和销售模式信息...")
-        customer_sales_info = self.generate_customer_and_sales_info(company_name, industry_info)
-        
-        # 生成前十大股东信息
-        print("正在生成前十大股东信息...")
-        top10_holders_data = financial_data.get('top10_holders', None) if financial_data else None
-        shareholders_info = self.generate_shareholders_info(company_name, stock_code, top10_holders_data)
-        
-        # 将生成的信息保存到字典中
-        generated_info = {
-            'company_name': company_name,
-            'stock_code': stock_code,
-            'income_structure_info': income_structure_info,
-            'history_info': history_info,
-            'customer_sales_info': customer_sales_info,
-            'shareholders_info': shareholders_info
-        }
-        
-        print("文本信息生成完成！")
+        # 获取top10_holders_data for shareholders info 
+        top10_holders_data = financial_data.get('top10_holders', None) if financial_data else None 
+        tasks.append(asyncio.create_task(self.generate_shareholders_info(company_name, stock_code, top10_holders_data))) 
+
+        # 运行所有任务并等待完成 
+        results = await asyncio.gather(*tasks) 
+        income_structure_info, history_info, customer_sales_info, shareholders_info = results 
+
+        # 将生成的信息保存到字典中 
+        generated_info = { 
+            'company_name': company_name, 
+            'stock_code': stock_code, 
+            'income_structure_info': income_structure_info, 
+            'history_info': history_info, 
+            'customer_sales_info': customer_sales_info, 
+            'shareholders_info': shareholders_info 
+        } 
+
+        print("文本信息生成完成！") 
         return generated_info
 
 
