@@ -8,7 +8,7 @@ import markdown
 
 
 class TextGenerator:
-    def __init__(self):
+    def __init__(self, words_limit: int = 500):
         """
         初始化文本生成器
         从环境变量中获取阿里云API密钥
@@ -17,9 +17,10 @@ class TextGenerator:
         api_key = os.environ.get('DASHSCOPE_API_KEY')
         if not api_key:
             raise ValueError("DASHSCOPE_API_KEY环境变量未设置")
-        
+
         dashscope.api_key = api_key
-        print("成功初始化阿里云Qwen API客户端")
+        self.words_limit = words_limit
+        print(f"成功初始化阿里云Qwen API客户端，字数限制: {words_limit}")
 
     async def generate_income_structure_info(self, company_name: str, financial_data: Optional[Dict] = None) -> str:
         """
@@ -70,17 +71,17 @@ class TextGenerator:
         {main_bz_data}
         
         请从以下角度详细分析：
-        1. 依照产品划分的主要收入来源
-        2. 各收入来源的占比情况
-        3. 收入结构的变化趋势
+        1. 各收入科目对应具体什么产品或服务
+        2. 依照产品划分的主要收入来源占比情况
+
 
         我是一名专业的投资人，请提供专业、详细的分析内容，如果不确定具体信息，请联网进行搜索。
         不需要对公司背景进行介绍，直接进入分析内容。
         不需要对完整的收入构成表格进行展示
         需要对不同收入科目具体的产品内容和对应客户群体进行介绍
-        字数控制在1500字以内
+        字数控制在{self.words_limit+500}字以内
         """
-        
+
         return await self._call_qwen_api_async(prompt)
 
     async def generate_history_and_founder_info(self, company_name: str, management_info=None) -> str:
@@ -126,9 +127,9 @@ class TextGenerator:
         
         当前管理层信息作为参考：
         {management_details}
-        字数不超过1500字
+        字数不超过{self.words_limit}字
         """
-        
+
         return await self._call_qwen_api_async(prompt)
 
     async def generate_customer_and_sales_info(self, company_name: str, industry_info: Optional[str] = None) -> str:
@@ -146,9 +147,9 @@ class TextGenerator:
         2. 产业链上游的基本情况，有哪些核心物料
         
         不需要对公司背景进行介绍，直接进入分析内容。
-        字数控制在1500字以内
+        字数控制在{self.words_limit+500}字以内
         """
-        
+
         return await self._call_qwen_api_async(prompt)
 
     async def generate_shareholders_info(self, company_name: str, stock_code: str, top10_holders_data=None) -> str:
@@ -191,6 +192,7 @@ class TextGenerator:
         - 如果数据中没有明确的持股变动信息，请明确说明
 
         我是一名专业的投资人，请提供专业、详细的分析内容。
+        字数控制在{self.words_limit}字以内
         """
 
         return await self._call_qwen_api_async(prompt)
@@ -199,12 +201,15 @@ class TextGenerator:
         """
         调用阿里云Qwen API生成文本
         """
+        # 大约每个汉字需要2-3个token，所以将字数乘以3以确保足够
+        max_tokens = max(500, int(self.words_limit * 3))
+
         try:
             response = dashscope.Generation.call(
                 model=model,
                 prompt=prompt,
                 result_format='message',  # 设置返回格式为message
-                max_tokens=1500,  # 限制最大token数
+                max_tokens=max_tokens,  # 限制最大token数
                 temperature=0.75,  # 控制生成的随机性
             )
             
@@ -227,17 +232,17 @@ class TextGenerator:
             return f"API调用错误: {e}"
 
 
-    def generate_all_company_info(self, company_name: str, stock_code: str, 
-                                financial_data: Optional[Dict] = None, 
-                                industry_info: Optional[str] = None, 
-                                management_info: Optional[Dict] = None) -> Dict[str, str]: 
-        """ 
-        生成所有公司信息（同步接口，内部使用异步处理） 
-        """ 
-        print(f"开始为公司 {company_name} (股票代码: {stock_code}) 生成文本信息...") 
-        return asyncio.run(self._generate_all_company_info_async( 
-            company_name, stock_code, financial_data, industry_info, management_info 
-        )) 
+    def generate_all_company_info(self, company_name: str, stock_code: str,
+                                financial_data: Optional[Dict] = None,
+                                industry_info: Optional[str] = None,
+                                management_info: Optional[Dict] = None) -> Dict[str, str]:
+        """
+        生成所有公司信息（同步接口，内部使用异步处理）
+        """
+        print(f"开始为公司 {company_name} (股票代码: {stock_code}) 生成文本信息...")
+        return asyncio.run(self._generate_all_company_info_async(
+            company_name, stock_code, financial_data, industry_info, management_info
+        ))
 
     async def _generate_all_company_info_async(self, company_name: str, stock_code: str, 
                                              financial_data: Optional[Dict] = None, 
@@ -283,15 +288,15 @@ def main():
     """
     try:
         # 初始化文本生成器
-        generator = TextGenerator()
-        
+        generator = TextGenerator(words_limit=500)
+
         # 示例公司名称和股票代码
         company_name = "潍柴动力"
         stock_code = "000338.SZ"
-        
+
         # 调用生成函数
         result = generator.generate_all_company_info(company_name, stock_code)
-        
+
         # 打印结果概览
         print("\n=== 生成结果概览 ===")
         print(f"公司名称: {result['company_name']}")
@@ -299,13 +304,13 @@ def main():
         print(f"收入结构信息长度: {len(result['income_structure_info'])} 字符")
         print(f"历史信息长度: {len(result['history_info'])} 字符")
         print(f"客户销售信息长度: {len(result['customer_sales_info'])} 字符")
-        
+
         # 保存生成的信息到文件以备后续使用
         output_file = f"{company_name}_generated_info.json"
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
         print(f"\n生成的信息已保存到: {output_file}")
-        
+
     except Exception as e:
         print(f"执行过程中发生错误: {e}")
 

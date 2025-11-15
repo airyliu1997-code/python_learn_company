@@ -76,7 +76,7 @@ class DataExtractor:
         quarterly_revenue['季度营业收入'] = pd.to_numeric(quarterly_revenue['季度营业收入'], errors='coerce') / 100000000
         quarterly_revenue['季度营业收入'] = quarterly_revenue['季度营业收入'].round(1)
         quarterly_net_profit['季度归母净利润'] = pd.to_numeric(quarterly_net_profit['季度归母净利润'], errors='coerce') / 100000000
-        quarterly_net_profit['季度归母净利润'] = quarterly_net_profit['季度归母净利润'].round(1)
+        quarterly_net_profit['季度归母净利润'] = quarterly_net_profit['季度归母净利润'].round(2)
         
         print("提取利润表数据完成")
         return {
@@ -152,7 +152,7 @@ class DataExtractor:
             quarterly_cashflow_data = quarterly_cashflow_data.drop_duplicates(subset=['报告期'])
             # 转换为亿元，并保留一位小数
             quarterly_cashflow_data['季度经营现金流净额'] = pd.to_numeric(quarterly_cashflow_data['季度经营现金流净额'], errors='coerce') / 100000000
-            quarterly_cashflow_data['季度经营现金流净额'] = quarterly_cashflow_data['季度经营现金流净额'].round(1)
+            quarterly_cashflow_data['季度经营现金流净额'] = quarterly_cashflow_data['季度经营现金流净额'].round(2)
         
         print("提取现金流量表数据完成")
         return {

@@ -17,7 +17,7 @@ from text_generator import TextGenerator
 from content_integration import ContentIntegrator
 
 
-def run_analysis(company_name, stock_code, output_dir):
+def run_analysis(company_name, stock_code, output_dir, index=None):
     """
     执行数据分析和报告生成的函数
     """
@@ -29,7 +29,7 @@ def run_analysis(company_name, stock_code, output_dir):
 
         # 3. 生成文本信息 (使用TextGenerator)
         print(f"步骤3: 生成 {company_name}({stock_code}) 的文本信息...")
-        text_generator = TextGenerator()
+        text_generator = TextGenerator(words_limit=500)
 
         # Extract financial data for better text generation
         financial_data = {
@@ -54,12 +54,13 @@ def run_analysis(company_name, stock_code, output_dir):
         # 临时修改输出目录
         original_output_dir = content_integrator.output_dir
         content_integrator.output_dir = output_dir
-        
+
         report_path = content_integrator.integrate_content(
             company_name=company_name,
             stock_code=stock_code,
             data_extractor_result=data_extractor_result,
-            text_generator_result=text_generator_result
+            text_generator_result=text_generator_result,
+            index=index
         )
 
         print(f"\n{company_name}({stock_code}) 公司分析报告生成完成！")
@@ -106,6 +107,8 @@ def get_toplist_data():
         df["net_amount"] = df["net_amount"].map(lambda x: '{:,.0f}M'.format(x/1000000))
         #按reason排序
         df.sort_values(by=["reason"], ascending=True, inplace=True)
+        # 重置索引
+        df.reset_index(drop=True, inplace=True)
         return df
     except Exception as e:
         print(f"获取龙虎榜数据时发生错误: {e}")
@@ -135,6 +138,39 @@ def save_toplist_data(df, date_str):
     df.to_csv(csv_path, index=False, encoding='utf-8-sig')
 
     print(f"龙虎榜数据已保存到: {csv_path}")
+
+
+def save_stock_list(df, date_str):
+    """
+    将龙虎榜中所有股票的代码和名称保存为txt格式
+
+    Parameters:
+    df: 龙虎榜数据DataFrame
+    date_str: 日期字符串，格式为YYYYMMDD
+    """
+    if df.empty:
+        print("龙虎榜数据为空，跳过保存股票列表")
+        return
+
+    # 创建日期文件夹路径
+    base_dir = "/Users/airry/PythonS/python_learn_company/result"
+    date_dir = os.path.join(base_dir, date_str)
+
+    # 创建日期文件夹（如果不存在）
+    os.makedirs(date_dir, exist_ok=True)
+
+    # TXT文件名
+    txt_filename = "股票列表.txt"
+    txt_path = os.path.join(date_dir, txt_filename)
+
+    # 保存股票代码和名称到TXT文件
+    with open(txt_path, 'w', encoding='utf-8') as f:
+        for _, row in df.iterrows():
+            stock_code = row['ts_code']
+            stock_name = row['name']
+            f.write(f"{stock_code}\t{stock_name}\n")
+
+    print(f"股票列表已保存到: {txt_path}")
 
 
 def generate_reports_for_toplist(df, date_str):
@@ -168,7 +204,7 @@ def generate_reports_for_toplist(df, date_str):
         print(f"\n[{current_stock}/{total_stocks}] 正在处理: {stock_name}({stock_code})")
         
         try:
-            run_analysis(stock_name, stock_code, output_date_dir)
+            run_analysis(stock_name, stock_code, output_date_dir, index=index+1)
         except Exception as e:
             print(f"处理 {stock_name}({stock_code}) 时发生错误: {e}")
             import traceback
@@ -203,6 +239,9 @@ def main():
 
     # 保存龙虎榜数据
     save_toplist_data(df, today)
+
+    # 保存股票列表到txt文件
+    save_stock_list(df, today)
 
     print(f"共获取到 {len(df)} 条龙虎榜交易记录")
 

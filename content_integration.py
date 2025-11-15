@@ -15,12 +15,16 @@ class ContentIntegrator:
 
     def integrate_content(self, company_name: str, stock_code: str,
                          data_extractor_result: Dict[str, Any],
-                         text_generator_result: Dict[str, str]) -> str:
+                         text_generator_result: Dict[str, str],
+                         index: int = None) -> str:
         """
         整合所有内容并生成HTML格式的报告
         """
         # Get today's date
         today = datetime.datetime.now().strftime('%Y年%m月%d日')
+
+        # Convert stock code for East Money URL (e.g., '000572.SZ' -> 'sz000572')
+        east_money_stock_code = self._convert_stock_code_for_east_money(stock_code)
 
         # Create HTML content
         html_content = []
@@ -62,12 +66,14 @@ class ContentIntegrator:
                 html_content.append(f'    <div class="section">')
                 html_content.append(f'        <h2>K线图分析</h2>')
                 html_content.append(f'        <img src="{kline_base64}" class="kline-image" alt="K线图">')
+                html_content.append(f'        <a href="https://quote.eastmoney.com/concept/{east_money_stock_code}.html" target="_blank" style="display:inline-block; padding: 8px 16px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; margin-top: 10px;">K线图详情</a>')
                 html_content.append(f'    </div>')
         except Exception as e:
             print(f"生成K线图时出错: {e}")
             html_content.append(f'    <div class="section">')
             html_content.append(f'        <h2>K线图分析</h2>')
             html_content.append(f'        <p>无法生成K线图: {e}</p>')
+            html_content.append(f'        <a href="https://quote.eastmoney.com/concept/{east_money_stock_code}.html" target="_blank" style="display:inline-block; padding: 8px 16px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; margin-top: 10px;">K线图详情</a>')
             html_content.append(f'    </div>')
 
         # 2. First section: Company introduction, main business, and history
@@ -1220,7 +1226,10 @@ class ContentIntegrator:
         final_content = "\n".join(html_content)
 
         # Save to file
-        filename = f"{company_name}_{stock_code}_{today.replace('年', '').replace('月', '').replace('日', '')}.html"
+        if index is not None:
+            filename = f"{index}.{company_name}_{stock_code}_{today.replace('年', '').replace('月', '').replace('日', '')}.html"
+        else:
+            filename = f"{company_name}_{stock_code}_{today.replace('年', '').replace('月', '').replace('日', '')}.html"
         filepath = os.path.join(self.output_dir, filename)
 
         with open(filepath, 'w', encoding='utf-8') as f:
@@ -1261,6 +1270,19 @@ class ContentIntegrator:
         html_table.append("    </table>")
 
         return "\n".join(html_table)
+
+    def _convert_stock_code_for_east_money(self, stock_code: str) -> str:
+        """
+        将股票代码转换为东方财富网格式
+        e.g., '000572.SZ' -> 'sz000572', '600000.SH' -> 'sh600000'
+        """
+        if '.' in stock_code:
+            code, exchange = stock_code.split('.', 1)
+            exchange = exchange.lower()
+            return f"{exchange}{code}"
+        else:
+            # 如果没有交易所后缀，则默认使用原始代码
+            return stock_code
 
 
 def main():

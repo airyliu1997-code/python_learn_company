@@ -19,18 +19,18 @@ def run_analysis(company_name, stock_code):
         
         # 3. 生成文本信息 (使用TextGenerator)
         print("步骤3: 生成文本信息...")
-        text_generator = TextGenerator()
-        
+        text_generator = TextGenerator(words_limit=50)
+
         # Extract financial data for better text generation
         financial_data = {
             'annual_revenue': data_extractor_result.get('annual_revenue', {}).to_dict() if not data_extractor_result.get('annual_revenue', pd.DataFrame()).empty else {},
             'main_business_composition': data_extractor_result.get('main_business_composition', pd.DataFrame()),  # 传递DataFrame而不是字典，便于处理
             'top10_holders': data_extractor_result.get('top10_holders', pd.DataFrame())  # 传递前十大股东数据
         }
-        
+
         # Extract management information
         management_info = data_extractor_result.get('management_info', None)
-        
+
         text_generator_result = text_generator.generate_all_company_info(
             company_name=company_name,
             stock_code=stock_code,
