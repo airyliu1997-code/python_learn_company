@@ -34,18 +34,27 @@ class DataExtractor:
     def extract_income_data(self, stock_code):
         """提取利润表数据"""
         # 1. 获取过去五年的年度数据
-        annual_income = self.pro.income(ts_code=stock_code, 
-                                      start_date=self.five_years_ago_str, 
+        all_income = self.pro.income(ts_code=stock_code,
+                                      start_date=self.five_years_ago_str,
                                       end_date=self.current_date_str)
-        
+
+        # 获取最新一期数据（按end_date排序，取最新的一条）
+        if not all_income.empty:
+            latest_income = all_income.sort_values(by='end_date', ascending=False).iloc[[0]]
+        else:
+            latest_income = all_income
+
         # 只保留年度数据（end_type='4' 表示年报，注意是字符串类型）
-        annual_income = annual_income[annual_income['end_type'] == '4']
-        
+        annual_data = all_income[all_income['end_type'] == '4']
+
+        # 合并年度数据和最新一期数据，避免重复
+        combined_income = pd.concat([annual_data, latest_income]).drop_duplicates(subset=['end_date']).reset_index(drop=True)
+
         # 筛选最新更新的数据（update_flag=1表示最新数据）
-        if 'update_flag' in annual_income.columns:
-            annual_income = annual_income[annual_income['update_flag'] == '1']
+        if 'update_flag' in combined_income.columns:
+            combined_income = combined_income[combined_income['update_flag'] == '1']
         #将数据升序排列
-        annual_income = annual_income.sort_values(by='end_date', ascending=True).reset_index(drop=True)
+        annual_income = combined_income.sort_values(by='end_date', ascending=True).reset_index(drop=True)
         # 提取过去五年的营业收入和归母净利润
         annual_revenue = annual_income[['end_date', 'total_revenue']].rename(columns={'end_date': '报告期', 'total_revenue': '年度营业收入'})
         annual_net_profit = annual_income[['end_date', 'n_income_attr_p']].rename(columns={'end_date': '报告期', 'n_income_attr_p': '年度归母净利润'})
@@ -89,18 +98,27 @@ class DataExtractor:
     def extract_cashflow_data(self, stock_code):
         """提取现金流量表数据"""
         # 3. 获取过去五年的年度现金流量数据
-        annual_cashflow = self.pro.cashflow(ts_code=stock_code, 
-                                          start_date=self.five_years_ago_str, 
+        all_cashflow = self.pro.cashflow(ts_code=stock_code,
+                                          start_date=self.five_years_ago_str,
                                           end_date=self.current_date_str)
-        
+
+        # 获取最新一期数据（按end_date排序，取最新的一条）
+        if not all_cashflow.empty:
+            latest_cashflow = all_cashflow.sort_values(by='end_date', ascending=False).iloc[[0]]
+        else:
+            latest_cashflow = all_cashflow
+
         # 只保留年度数据（end_type='4' 表示年报，注意是字符串类型）
-        annual_cashflow = annual_cashflow[annual_cashflow['end_type'] == '4']
-        
+        annual_data = all_cashflow[all_cashflow['end_type'] == '4']
+
+        # 合并年度数据和最新一期数据，避免重复
+        combined_cashflow = pd.concat([annual_data, latest_cashflow]).drop_duplicates(subset=['end_date']).reset_index(drop=True)
+
         # 筛选最新更新的数据（update_flag=1表示最新数据）
-        if 'update_flag' in annual_cashflow.columns:
-            annual_cashflow = annual_cashflow[annual_cashflow['update_flag'] == '1']
+        if 'update_flag' in combined_cashflow.columns:
+            combined_cashflow = combined_cashflow[combined_cashflow['update_flag'] == '1']
         #将数据升序排列
-        annual_cashflow = annual_cashflow.sort_values(by='end_date', ascending=True).reset_index(drop=True)
+        annual_cashflow = combined_cashflow.sort_values(by='end_date', ascending=True).reset_index(drop=True)
 
         # 提取过去五年的经营现金流净额和现金净增加额
         # 检查数据是否存在必要的列
@@ -165,7 +183,7 @@ class DataExtractor:
         # 5. 获取过去五年的年度财务指标
         # 使用fields参数指定需要的字段
         annual_fields = [
-            'end_date', 
+            'end_date',
             'netprofit_margin',      # 净利率
             'grossprofit_margin',    # 毛利率
             'roe_waa',              # 净资产收益率
@@ -175,21 +193,30 @@ class DataExtractor:
             'netprofit_yoy',         # 利润增长率
             'update_flag'            # 更新标志
         ]
-        annual_indicators = self.pro.fina_indicator(
-            ts_code=stock_code, 
-            start_date=self.five_years_ago_str, 
+        all_indicators = self.pro.fina_indicator(
+            ts_code=stock_code,
+            start_date=self.five_years_ago_str,
             end_date=self.current_date_str,
             fields=','.join(annual_fields)
         )
-        
+
+        # 获取最新一期数据（按end_date排序，取最新的一条）
+        if not all_indicators.empty:
+            latest_indicators = all_indicators.sort_values(by='end_date', ascending=False).iloc[[0]]
+        else:
+            latest_indicators = all_indicators
+
         # 筛选年度报告（end_date以1231结尾，即每年12月31日）
-        annual_indicators = annual_indicators[annual_indicators['end_date'].str.endswith('1231')]
-        
+        annual_data = all_indicators[all_indicators['end_date'].str.endswith('1231')]
+
+        # 合并年度数据和最新一期数据，避免重复
+        combined_indicators = pd.concat([annual_data, latest_indicators]).drop_duplicates(subset=['end_date']).reset_index(drop=True)
+
         # 筛选最新更新的数据（update_flag=1表示最新数据）
-        if 'update_flag' in annual_indicators.columns:
-            annual_indicators = annual_indicators[annual_indicators['update_flag'] == '1']
+        if 'update_flag' in combined_indicators.columns:
+            combined_indicators = combined_indicators[combined_indicators['update_flag'] == '1']
         #将数据升序排列
-        annual_indicators = annual_indicators.sort_values(by='end_date', ascending=True).reset_index(drop=True)
+        annual_indicators = combined_indicators.sort_values(by='end_date', ascending=True).reset_index(drop=True)
         # Remove update_flag column from the final result since we only used it for filtering
         annual_indicators_for_rename = annual_indicators.drop(columns=['update_flag']) if 'update_flag' in annual_indicators.columns else annual_indicators
         annual_indicators_data = annual_indicators_for_rename.rename(columns={

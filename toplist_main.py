@@ -72,7 +72,7 @@ def run_analysis(company_name, stock_code, output_dir, index=None):
         traceback.print_exc()
 
 
-def get_toplist_data():
+def get_toplist_data(today):
     """
     通过Tushare的top_list接口获取当天的龙虎榜交易明细
     """
@@ -85,8 +85,6 @@ def get_toplist_data():
     ts.set_token(token)
     pro = ts.pro_api()
 
-    # 获取前一个交易日日期
-    today = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
     try:
         # 调用top_list接口获取当天龙虎榜数据
         # 使用fields参数指定需要的字段
@@ -224,13 +222,13 @@ def main():
     """
     主函数
     """
-    # 获取当天日期字符串
-    today = datetime.now().strftime('%Y%m%d')
+    # 获取当天（或几天前的）日期字符串
+    today = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
 
     print(f"正在获取{today}的龙虎榜数据...")
 
     # 获取龙虎榜数据
-    df = get_toplist_data()
+    df = get_toplist_data(today)
 
     # 检查数据是否为空
     if df.empty:
