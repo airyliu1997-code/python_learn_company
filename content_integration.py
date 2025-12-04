@@ -2,6 +2,7 @@ import os
 import datetime
 import pandas as pd
 from typing import Dict, Any
+import markdown
 from kline_generator import KLineGenerator
 
 
@@ -16,6 +17,7 @@ class ContentIntegrator:
     def integrate_content(self, company_name: str, stock_code: str,
                          data_extractor_result: Dict[str, Any],
                          text_generator_result: Dict[str, str],
+                         abnormal_info: str = None,
                          index: int = None) -> str:
         """
         整合所有内容并生成HTML格式的报告
@@ -58,7 +60,16 @@ class ContentIntegrator:
         html_content.append(f'    <h1>{company_name}（{stock_code}）</h1>')
         html_content.append(f'    <h2>{today}</h2>')
 
-        # Generate and add K-line chart
+        # 2. Add abnormal stock information if available
+        if abnormal_info:
+            # Convert markdown to HTML for proper rendering, similar to how shareholders_info and income_structure_info are handled
+            html_abnormal_info = markdown.markdown(abnormal_info, extensions=['extra', 'codehilite', 'toc', 'tables', 'fenced_code'])
+            html_content.append('    <div class="section">')
+            html_content.append('        <h2>股价异动分析</h2>')
+            html_content.append(f'        <div>{html_abnormal_info}</div>')
+            html_content.append('    </div>')
+
+        # 3. Generate and add K-line chart
         try:
             kline_generator = KLineGenerator()
             kline_base64 = kline_generator.plot_kline(stock_code, company_name)
@@ -1200,7 +1211,10 @@ class ContentIntegrator:
 
         html_content.append(f'        <ul>')
         html_content.append(f'            <li><strong>公司所在城市：</strong> {city}</li>')
-        html_content.append(f'            <li><strong>公司网址：</strong> {website}</li>')
+        if website != 'N/A' and website.startswith(('http://', 'https://')):
+            html_content.append(f'            <li><strong>公司网址：</strong> <a href="{website}" target="_blank">{website}</a></li>')
+        else:
+            html_content.append(f'            <li><strong>公司网址：</strong> {website}</li>')
         html_content.append(f'        </ul>')
         html_content.append('    </div>')
         

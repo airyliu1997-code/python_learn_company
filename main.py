@@ -19,7 +19,7 @@ def run_analysis(company_name, stock_code):
         
         # 3. 生成文本信息 (使用TextGenerator)
         print("步骤3: 生成文本信息...")
-        text_generator = TextGenerator(words_limit=50)
+        text_generator = TextGenerator(words_limit=500)
 
         # Extract financial data for better text generation
         financial_data = {
@@ -65,7 +65,7 @@ def main():
     
     try:
         # 1. 获取公司名称和股票代码 using the GUI from stock_code_matcher
-        print("步骤1: 通过GUI获取公司名称和股票代码...")
+        print("步骤1: 获取公司名称和股票代码...")
         csv_file_path = os.path.join(os.path.dirname(__file__), 'stock_names.csv')
         
         if not os.path.exists(csv_file_path):
@@ -80,19 +80,9 @@ def main():
         else:
             # Initialize the stock code matcher
             matcher = StockCodeMatcher(csv_file_path)
-            
-            # Show GUI for user input
-            print("启动GUI界面以获取公司名称和股票代码...")
-            
+                       
             # We'll create a simple callback to continue the process after GUI
-            def process_with_gui():
-                # For now, we'll just provide instructions
-                print("\n" + "="*60)
-                print("注意: GUI界面是阻塞的，无法直接获取返回值")
-                print("请在GUI中查询到股票代码后，关闭GUI窗口")
-                print("然后输入公司名称和股票代码以继续分析:")
-                print("="*60)
-                
+            def process_with_gui():               
                 company_name = input("请输入公司名称: ").strip()
                 if company_name:
                     stock_code = matcher.find_stock_code(company_name)

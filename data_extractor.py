@@ -26,10 +26,10 @@ class DataExtractor:
         self.ten_quarters_ago_str = self.ten_quarters_ago.strftime('%Y%m%d')
         self.current_date_str = self.current_date.strftime('%Y%m%d')
         
-        print(f"当前日期: {self.current_date_str}")
-        print(f"过去三年起始日期: {self.three_years_ago_str}")
-        print(f"过去五年起始日期: {self.five_years_ago_str}")
-        print(f"过去十个季度起始日期: {self.ten_quarters_ago_str}")
+        #print(f"当前日期: {self.current_date_str}")
+        #print(f"过去三年起始日期: {self.three_years_ago_str}")
+        #print(f"过去五年起始日期: {self.five_years_ago_str}")
+        #print(f"过去十个季度起始日期: {self.ten_quarters_ago_str}")
 
     def extract_income_data(self, stock_code):
         """提取利润表数据"""
@@ -420,78 +420,25 @@ class DataExtractor:
         all_data.update(cashflow_data)
         all_data.update(fina_data)
         
-        # 打印变量（仅用于测试）
-        print("\n--- 年度利润表数据 ---")
-        print("年度营业收入:")
-        print(income_data['annual_revenue'])
-        print("年度归母净利润:")
-        print(income_data['annual_net_profit'])
-        
-        print("\n--- 季度利润表数据 ---")
-        print("季度营业收入:")
-        print(income_data['quarterly_revenue'])
-        print("季度归母净利润:")
-        print(income_data['quarterly_net_profit'])
-        
-        print("\n--- 年度现金流量表数据 ---")
-        print("年度经营现金流净额:")
-        print(cashflow_data['annual_cashflow'][['报告期', '年度经营现金流净额']])
-        print("年度现金净增加额:")
-        print(cashflow_data['annual_cashflow'][['报告期', '年度现金净增加额']])
-        
-        print("\n--- 季度现金流量表数据 ---")
-        print("季度经营现金流净额:")
-        print(cashflow_data['quarterly_cashflow'][['报告期', '季度经营现金流净额']])
-        
-        print("\n--- 年度财务指标数据 ---")
-        print("年度财务指标:")
-        print(fina_data['annual_indicators'])
-        
-        print("\n--- 季度财务指标数据 ---")
-        print("季度财务指标:")
-        print(fina_data['quarterly_indicators'])
-        
         # Extract main business composition data
         main_bz_data = self.extract_main_business_composition(stock_code, income_data['annual_revenue'])
         all_data['main_business_composition'] = main_bz_data
-        
-        print("\n--- 主营业务构成数据 ---")
-        print("主营业务构成:")
-        print(main_bz_data)
-        
+       
         # Extract company information
         company_info = self.extract_company_information(stock_code)
         all_data['company_info'] = company_info
-        
-        print("\n--- 公司信息 ---")
-        print(f"所在城市: {company_info['city']}")
-        print(f"公司介绍: {company_info['introduction']}")
-        print(f"公司主页: {company_info['website']}")
-        print(f"主要业务和产品: {company_info['main_business']}")
         
         # Extract top 10 shareholders data
         top10_holders_data = self.extract_top10_shareholders(stock_code)
         all_data['top10_holders'] = top10_holders_data
 
-        print("\n--- 前十大股东数据 ---")
-        print("前十大股东信息:")
-        print(top10_holders_data[['end_date', 'holder_name', 'hold_ratio', 'hold_change', 'holder_type']].head(10))
-
         # Extract daily market data
         daily_data = self.extract_daily_market_data(stock_code)
         all_data['daily_market_data'] = daily_data
         
-        print("\n--- 当日市场数据 ---")
-        print(f"市盈率(TTM): {daily_data['pe_ttm']}")
-        print(f"市净率: {daily_data['pb']}")
-        print(f"总市值(亿元): {daily_data['total_mv']}")
-        
         # Extract management information
         management_info = self.extract_management_information(stock_code)
         all_data['management_info'] = management_info
-        
-        print("\n--- 管理层信息 ---")
-        print(f"管理层信息: {management_info}")
         
         print("\n数据提取完成！")
         return all_data
@@ -627,19 +574,6 @@ def main():
         # 这里使用一个示例代码进行测试
         sample_stock_code = "600376.SH"  # 首开股份
         all_data = extractor.get_all_data(sample_stock_code)
-        
-        # Print sample of new data to confirm functionality
-        print("\n=== 新增功能测试结果 ===")
-        print("公司信息:")
-        print(f"  - 城市: {all_data['company_info']['city']}")
-        print(f"  - 介绍: {all_data['company_info']['introduction']}")
-        print(f"  - 网站: {all_data['company_info']['website']}")
-        print(f"  - 主营业务: {all_data['company_info']['main_business']}")
-        
-        print("\n当日市场数据:")
-        print(f"  - 市盈率(TTM): {all_data['daily_market_data']['pe_ttm'],1}")
-        print(f"  - 市净率: {all_data['daily_market_data']['pb']}")
-        print(f"  - 总市值(亿元): {all_data['daily_market_data']['total_mv']}")
         
     except Exception as e:
         print(f"数据提取失败: {e}")

@@ -15,13 +15,25 @@ import sys
 from data_extractor import DataExtractor
 from text_generator import TextGenerator
 from content_integration import ContentIntegrator
+from doubao_websearch import get_stock_abnormal_info
 
-
+minus_days = 1  # 设置为1表示获取昨天的龙虎榜数据
 def run_analysis(company_name, stock_code, output_dir, index=None):
     """
     执行数据分析和报告生成的函数
     """
     try:
+        # 1. 获取股票异动信息
+        print(f"步骤1: 获取 {company_name}({stock_code}) 的异动信息...")
+        # 使用当前日期作为查询日期
+        current_date = (datetime.now() - timedelta(days=minus_days)).strftime('%Y年%m月%d日')
+        abnormal_info = get_stock_abnormal_info(stock_code, company_name, current_date)
+        if abnormal_info:
+            print(f"获取到异动信息成功")
+        else:
+            print(f"未能获取到异动信息，跳过此步骤")
+            abnormal_info = "暂未获取到相关异动信息。"
+
         # 2. 提取数据 (使用DataExtractor)
         print(f"步骤2: 提取 {company_name}({stock_code}) 的公司数据...")
         data_extractor = DataExtractor()
@@ -60,6 +72,7 @@ def run_analysis(company_name, stock_code, output_dir, index=None):
             stock_code=stock_code,
             data_extractor_result=data_extractor_result,
             text_generator_result=text_generator_result,
+            abnormal_info=abnormal_info,
             index=index
         )
 
@@ -223,7 +236,7 @@ def main():
     主函数
     """
     # 获取当天（或几天前的）日期字符串
-    today = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
+    today = (datetime.now() - timedelta(days=minus_days)).strftime('%Y%m%d')
 
     print(f"正在获取{today}的龙虎榜数据...")
 

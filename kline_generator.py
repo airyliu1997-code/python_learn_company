@@ -147,8 +147,6 @@ class KLineGenerator:
         buffer.seek(0)
         image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
         plt.close()  # 关闭图形以释放内存
-        
-        print(f"K线图已生成为base64编码图像，长度: {len(image_base64)} 字符")
         return f"data:image/png;base64,{image_base64}"
 
 
@@ -165,7 +163,7 @@ def main():
         
         result_path = generator.plot_kline(sample_stock_code, sample_company_name)
         if result_path:
-            print(f"K线图生成成功，base64长度: {len(result_path)} 字符")
+            print(f"K线图生成成功")
         else:
             print("K线图生成失败")
     except Exception as e:

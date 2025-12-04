@@ -1,5 +1,6 @@
 from openai import OpenAI
 import os
+from Jiuyan_spider import JiuYanGongSheSpider, get_valid_cookie
 
 
 def get_stock_abnormal_info(stock_code, stock_name, date):
@@ -14,6 +15,12 @@ def get_stock_abnormal_info(stock_code, stock_name, date):
     Returns:
         str: 股票异动原因的分析结果，如果查询失败则返回None
     """
+    # 获取韭研公社的相关帖子内容
+    print(f"正在爬取 {stock_name} 在韭研公社的相关帖子...")
+    cookie = get_valid_cookie()
+    spider = JiuYanGongSheSpider(cookie)
+    jiuyan_content = spider.crawl_stock_posts(stock_name)
+
     # 从环境变量中获取您的API KEY，配置方法见：https://www.volcengine.com/docs/82379/1399008
     api_key = os.getenv('ARK_API_KEY')
     client = OpenAI(
@@ -21,18 +28,14 @@ def get_stock_abnormal_info(stock_code, stock_name, date):
         api_key=api_key
     )
 
-    tools = [{
-        "type": "web_search",
-    }]
-
-    # 创建一个对话请求
+    # 创建一个对话请求，包含从韭研公社获取的内容作为上下文
     response = client.responses.create(
         model="doubao-seed-1-6-251015",
         input=[
-            {"role": "system", "content": "你是一名专业投资人，擅长通过网络搜索获取最新的股票市场信息"},
-            {"role": "user", "content": f"{stock_code}{stock_name}{date}股价异动的底层原因和事件催化。不需要进行总结"}
+            {"role": "system", "content": "你是一名专业投资人，擅长分析股票市场信息"},
+            {"role": "user", "content": f"以下是我在网络上搜集到的关于{stock_name}的最新资讯：\n\n{jiuyan_content}\n\n基于以上信息，请摘录与{stock_name}相关的信息及所在段落的完整上下文。并简要提炼{stock_code}{stock_name}{date}股价异动的主要原因"},
         ],
-        tools=tools,
+        temperature=0.3
     )
 
     # 从response中提取text内容
@@ -53,7 +56,7 @@ def get_stock_abnormal_info(stock_code, stock_name, date):
 
 # 示例调用
 if __name__ == "__main__":
-    result = get_stock_abnormal_info('000973.SZ', '佛塑科技', '2025年11月17日')
+    result = get_stock_abnormal_info('000002.SZ', '万科A', '2025年11月26日')
     if result:
         print("提取的text结果：")
         print(result)
