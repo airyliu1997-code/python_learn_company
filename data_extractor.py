@@ -2,6 +2,7 @@ import tushare as ts
 import pandas as pd
 import datetime
 import os
+import json
 
 
 class DataExtractor:
@@ -40,25 +41,26 @@ class DataExtractor:
 
         # 获取最新一期数据（按end_date排序，取最新的一条）
         if not all_income.empty:
-            latest_income = all_income.sort_values(by='end_date', ascending=False).iloc[[0]]
+            latest_income = all_income[all_income['update_flag'] == '1'] #不然可能筛选到的第一行update_flag是0
+            latest_income = latest_income.sort_values(by='end_date', ascending=False).iloc[[0]]
         else:
             latest_income = all_income
 
         # 只保留年度数据（end_type='4' 表示年报，注意是字符串类型）
         annual_data = all_income[all_income['end_type'] == '4']
-
-        # 合并年度数据和最新一期数据，避免重复
-        combined_income = pd.concat([annual_data, latest_income]).drop_duplicates(subset=['end_date']).reset_index(drop=True)
-
+        # 合并年度数据和最新一期数据
+        combined_income = pd.concat([annual_data, latest_income])
         # 筛选最新更新的数据（update_flag=1表示最新数据）
         if 'update_flag' in combined_income.columns:
             combined_income = combined_income[combined_income['update_flag'] == '1']
+        #去除重复的end_date行(一定要先筛选最新数据，再去重)
+        combined_income = combined_income.drop_duplicates(subset=['end_date']).reset_index(drop=True)
         #将数据升序排列
         annual_income = combined_income.sort_values(by='end_date', ascending=True).reset_index(drop=True)
         # 提取过去五年的营业收入和归母净利润
         annual_revenue = annual_income[['end_date', 'total_revenue']].rename(columns={'end_date': '报告期', 'total_revenue': '年度营业收入'})
         annual_net_profit = annual_income[['end_date', 'n_income_attr_p']].rename(columns={'end_date': '报告期', 'n_income_attr_p': '年度归母净利润'})
-        
+               
         # 转换为亿元，并保留一位小数
         annual_revenue['年度营业收入'] = pd.to_numeric(annual_revenue['年度营业收入'], errors='coerce') / 100000000
         annual_revenue['年度营业收入'] = annual_revenue['年度营业收入'].round(1)
@@ -104,7 +106,8 @@ class DataExtractor:
 
         # 获取最新一期数据（按end_date排序，取最新的一条）
         if not all_cashflow.empty:
-            latest_cashflow = all_cashflow.sort_values(by='end_date', ascending=False).iloc[[0]]
+            latest_cashflow = all_cashflow[all_cashflow['update_flag'] == '1'] #不然可能筛选到的第一行update_flag是0
+            latest_cashflow = latest_cashflow.sort_values(by='end_date', ascending=False).iloc[[0]]
         else:
             latest_cashflow = all_cashflow
 
@@ -112,11 +115,13 @@ class DataExtractor:
         annual_data = all_cashflow[all_cashflow['end_type'] == '4']
 
         # 合并年度数据和最新一期数据，避免重复
-        combined_cashflow = pd.concat([annual_data, latest_cashflow]).drop_duplicates(subset=['end_date']).reset_index(drop=True)
+        combined_cashflow = pd.concat([annual_data, latest_cashflow])
 
         # 筛选最新更新的数据（update_flag=1表示最新数据）
         if 'update_flag' in combined_cashflow.columns:
             combined_cashflow = combined_cashflow[combined_cashflow['update_flag'] == '1']
+        #去除重复数据（一定要先筛选最新数据，再去重）
+        combined_cashflow = combined_cashflow.drop_duplicates(subset=['end_date']).reset_index(drop=True)
         #将数据升序排列
         annual_cashflow = combined_cashflow.sort_values(by='end_date', ascending=True).reset_index(drop=True)
 
@@ -202,7 +207,8 @@ class DataExtractor:
 
         # 获取最新一期数据（按end_date排序，取最新的一条）
         if not all_indicators.empty:
-            latest_indicators = all_indicators.sort_values(by='end_date', ascending=False).iloc[[0]]
+            latest_indicators = all_indicators[all_indicators['update_flag'] == '1'] #不然可能筛选到的第一行update_flag是0
+            latest_indicators = latest_indicators.sort_values(by='end_date', ascending=False).iloc[[0]]
         else:
             latest_indicators = all_indicators
 
@@ -210,11 +216,13 @@ class DataExtractor:
         annual_data = all_indicators[all_indicators['end_date'].str.endswith('1231')]
 
         # 合并年度数据和最新一期数据，避免重复
-        combined_indicators = pd.concat([annual_data, latest_indicators]).drop_duplicates(subset=['end_date']).reset_index(drop=True)
+        combined_indicators = pd.concat([annual_data, latest_indicators])
 
         # 筛选最新更新的数据（update_flag=1表示最新数据）
         if 'update_flag' in combined_indicators.columns:
             combined_indicators = combined_indicators[combined_indicators['update_flag'] == '1']
+        #去除重复数据（一定要先筛选最新数据，再去重）
+        combined_indicators = combined_indicators.drop_duplicates(subset=['end_date']).reset_index(drop=True)
         #将数据升序排列
         annual_indicators = combined_indicators.sort_values(by='end_date', ascending=True).reset_index(drop=True)
         # Remove update_flag column from the final result since we only used it for filtering
@@ -572,9 +580,10 @@ def main():
         
         # 示例股票代码，实际使用时应该从stock_code_matcher获取
         # 这里使用一个示例代码进行测试
-        sample_stock_code = "600376.SH"  # 首开股份
+        sample_stock_code = "301061.SZ"  # 匠心家居
         all_data = extractor.get_all_data(sample_stock_code)
-        
+        all_data = json.loads(json.dumps(all_data, default=str))  # 将所有数据转换为可序列化的格式
+        print(f'数据情况是{all_data}')
     except Exception as e:
         print(f"数据提取失败: {e}")
         print("请确保已正确设置TUSHARE_TOKEN环境变量，且token有效")

@@ -33,9 +33,9 @@ def get_stock_abnormal_info(stock_code, stock_name, date):
         model="doubao-seed-1-6-251015",
         input=[
             {"role": "system", "content": "你是一名专业投资人，擅长分析股票市场信息"},
-            {"role": "user", "content": f"以下是我在网络上搜集到的关于{stock_name}的最新资讯：\n\n{jiuyan_content}\n\n基于以上信息，请摘录与{stock_name}相关的信息及所在段落的完整上下文。并简要提炼{stock_code}{stock_name}{date}股价异动的主要原因"},
+            {"role": "user", "content": f"以下是我在网络上搜集到的关于{stock_name}的最新资讯：\n\n{jiuyan_content}\n\n基于以上信息，提炼{stock_code}{stock_name}{date}股价异动的主要原因。注意关注发帖时间，判断帖子的时效性"},
         ],
-        temperature=0.3
+        temperature=0.4
     )
 
     # 从response中提取text内容
