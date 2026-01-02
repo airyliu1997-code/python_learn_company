@@ -55,6 +55,8 @@ class ContentIntegrator:
         html_content.append('    </style>')
         html_content.append('</head>')
         html_content.append('<body>')
+        # Extract company info
+        company_info = data_extractor_result.get('company_info', {})
 
         # 1. Title and subtitle
         html_content.append(f'    <h1>{company_name}（{stock_code}）</h1>')
@@ -91,17 +93,26 @@ class ContentIntegrator:
         html_content.append('    <div class="section">')
         html_content.append('        <h2>公司概况</h2>')
 
-        # Get company info from data extractor
-        company_info = data_extractor_result.get('company_info', {})
+        # Get company info from company_info
         company_intro = company_info.get('introduction', 'N/A')
         main_business = company_info.get('main_business', 'N/A')
-
+        city = company_info.get('city', 'N/A')
+        website = company_info.get('website', 'N/A')
         # Get history info from text generator
         history_info = text_generator_result.get('history_info', 'N/A')
 
         html_content.append(f'        <p><strong>公司介绍：</strong> {company_intro}</p>')
         html_content.append(f'        <p><strong>主要业务和产品：</strong> {main_business}</p>')
         
+        html_content.append(f'        <ul>')
+        html_content.append(f'            <li><strong>公司所在城市：</strong> {city}</li>')
+        if website != 'N/A' and website.startswith(('http://', 'https://')):
+            html_content.append(f'            <li><strong>公司网址：</strong> <a href="{website}" target="_blank">{website}</a></li>')
+        elif website != 'N/A' and website.startswith('www.'):
+            html_content.append(f'            <li><strong>公司网址：</strong> <a href="http://{website}" target="_blank">http://{website}</a></li>')
+        else:
+            html_content.append(f'            <li><strong>公司网址：</strong> {website}</li>')
+        html_content.append(f'        </ul>')
         # Get shareholders info from text generator
         shareholders_info = text_generator_result.get('shareholders_info', 'N/A')
         html_content.append('        <div class="subsection">')
@@ -1201,37 +1212,7 @@ class ContentIntegrator:
         html_content.append(f'        <p>市净率为 {pb_formatted}</p>')
         html_content.append(f'        <p>总市值为 {total_mv_formatted} 亿元</p>')
         html_content.append('    </div>')
-
-        # 6. Additional information
-        html_content.append('    <div class="section">')
-        html_content.append('        <h2>其他信息</h2>')
-
-        city = company_info.get('city', 'N/A')
-        website = company_info.get('website', 'N/A')
-
-        html_content.append(f'        <ul>')
-        html_content.append(f'            <li><strong>公司所在城市：</strong> {city}</li>')
-        if website != 'N/A' and website.startswith(('http://', 'https://')):
-            html_content.append(f'            <li><strong>公司网址：</strong> <a href="{website}" target="_blank">{website}</a></li>')
-        else:
-            html_content.append(f'            <li><strong>公司网址：</strong> {website}</li>')
-        html_content.append(f'        </ul>')
-        html_content.append('    </div>')
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         # Close HTML tags
         html_content.append('</body>')
         html_content.append('</html>')

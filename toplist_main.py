@@ -17,8 +17,7 @@ from text_generator import TextGenerator
 from content_integration import ContentIntegrator
 from doubao_websearch import get_stock_abnormal_info
 
-minus_days = 1  # 设置为1表示获取昨天的龙虎榜数据
-def run_analysis(company_name, stock_code, output_dir, index=None):
+def run_analysis(company_name, stock_code, output_dir, index=None, minus_days=0):
     """
     执行数据分析和报告生成的函数
     """
@@ -235,6 +234,7 @@ def main():
     """
     主函数
     """
+    minus_days = 0  # 设置为1表示获取昨天的龙虎榜数据
     # 获取当天（或几天前的）日期字符串
     today = (datetime.now() - timedelta(days=minus_days)).strftime('%Y%m%d')
 

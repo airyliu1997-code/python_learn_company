@@ -12,6 +12,54 @@ from get_limit_status_data import get_limit_status_data
 from toplist_main import run_analysis
 import sys
 
+def main():
+    """
+    主函数
+    """
+    # 设置minus_days参数，控制获取哪天的数据
+    minus_days =7  # 默认获取当天的数据，可以根据需要调整
+    
+    # 获取目标日期
+    target_date = (datetime.now() - timedelta(days=minus_days)).strftime('%Y%m%d')
+
+    print(f"正在获取{target_date}的涨跌停数据...")
+
+    # 获取涨跌停数据
+    df = get_limit_status_data(minus_days=minus_days, day_range=10)
+
+    # 检查数据是否为空
+    if df.empty:
+        print("当日无涨跌停股票数据")
+        return
+
+    print(f"共获取到 {len(df)} 条涨跌停记录")
+
+    # 保存涨跌停数据
+    save_limit_status_data(df, target_date)
+
+    # 保存股票列表到txt文件
+    save_stock_list(df, target_date)
+
+    # 显示数据预览
+    print("\n涨跌停数据预览:")
+    print(df)
+
+    # 显示各连板状态的统计
+    print("\n各连板状态统计:")
+    status_counts = df['连板状态'].value_counts()
+    for status, count in status_counts.items():
+        print(f"  {status}: {count} 只")
+
+    # 获取唯一连板状态列表，供用户选择
+    unique_statuses = df['连板状态'].unique().tolist()
+    
+    # 询问用户选择需要分析的连板状态
+    selected_status = get_user_selection(unique_statuses)
+
+    # 为指定连板状态的股票生成分析报告
+    print(f"\n开始为连板状态为 '{selected_status}' 的股票生成分析报告...")
+    generate_reports_for_limit_stocks(df, target_date, selected_status, minus_days=minus_days)
+
 def save_limit_status_data(df, date_str):
     """
     将涨跌停数据保存为CSV文件
@@ -96,7 +144,7 @@ def get_user_selection(unique_statuses):
             print("请输入有效的数字")
 
 
-def generate_reports_for_limit_stocks(df, date_str, selected_status):
+def generate_reports_for_limit_stocks(df, date_str, selected_status,minus_days=0):
     """
     为指定连板状态的股票生成完整分析报告
 
@@ -131,7 +179,7 @@ def generate_reports_for_limit_stocks(df, date_str, selected_status):
 
         try:
             # 调用toplist_main.py中的run_analysis函数生成报告
-            run_analysis(stock_name, stock_code, output_date_dir, index=index+1)
+            run_analysis(stock_name, stock_code, output_date_dir, index=index+1, minus_days=minus_days)
         except Exception as e:
             print(f"处理 {stock_name}({stock_code}) 时发生错误: {e}")
             import traceback
@@ -141,56 +189,6 @@ def generate_reports_for_limit_stocks(df, date_str, selected_status):
     print("="*60)
     print(f"连板状态为 '{selected_status}' 的股票报告生成完成！")
     print(f"总共处理了 {total_stocks} 只股票")
-
-
-def main():
-    """
-    主函数
-    """
-    # 设置minus_days参数，控制获取哪天的数据
-    minus_days = 2  # 默认获取2天前的数据，可以根据需要调整
-    
-    # 获取目标日期
-    target_date = (datetime.now() - timedelta(days=minus_days)).strftime('%Y%m%d')
-
-    print(f"正在获取{target_date}的涨跌停数据...")
-
-    # 获取涨跌停数据
-    df = get_limit_status_data(minus_days=minus_days, day_range=10)
-
-    # 检查数据是否为空
-    if df.empty:
-        print("当日无涨跌停股票数据")
-        return
-
-    print(f"共获取到 {len(df)} 条涨跌停记录")
-
-    # 保存涨跌停数据
-    save_limit_status_data(df, target_date)
-
-    # 保存股票列表到txt文件
-    save_stock_list(df, target_date)
-
-    # 显示数据预览
-    print("\n涨跌停数据预览:")
-    print(df)
-
-    # 显示各连板状态的统计
-    print("\n各连板状态统计:")
-    status_counts = df['连板状态'].value_counts()
-    for status, count in status_counts.items():
-        print(f"  {status}: {count} 只")
-
-    # 获取唯一连板状态列表，供用户选择
-    unique_statuses = df['连板状态'].unique().tolist()
-    
-    # 询问用户选择需要分析的连板状态
-    selected_status = get_user_selection(unique_statuses)
-
-    # 为指定连板状态的股票生成分析报告
-    print(f"\n开始为连板状态为 '{selected_status}' 的股票生成分析报告...")
-    generate_reports_for_limit_stocks(df, target_date, selected_status)
-
 
 if __name__ == "__main__":
     main()
